@@ -7,4 +7,7 @@ startCommand = "npm run start:prod"
 healthcheckPath = "/api"
 healthcheckTimeout = 100
 restartPolicyType = "on-failure"
-restartPolicyMaxRetries = 10 
+restartPolicyMaxRetries = 10
+
+[phases.setup]
+nixPkgs = ["nodejs_18"] 
