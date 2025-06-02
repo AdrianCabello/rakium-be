@@ -36,17 +36,48 @@ model Client {
 }
 
 model Project {
-  id        String        @id @default(uuid())
-  name      String
-  type      ProjectType
-  status    ProjectStatus
-  url       String?
-  clientId  String
-  client    Client        @relation(fields: [clientId], references: [id])
-  createdBy String?
-  creator   User?         @relation("CreatedBy", fields: [createdBy], references: [id])
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id                String          @id @default(uuid())
+  title             String
+  category          ProjectCategory
+  description       String
+  longDescription   String          @map("long_description")
+  imageBefore       String?         @map("image_before")
+  imageAfter        String?         @map("image_after")
+  latitude          Float           @map("latitude")
+  longitude         Float           @map("longitude")
+  address           String          @map("address")
+  country           String          @map("country")
+  state             String          @map("state")
+  city              String          @map("city")
+  area              String
+  duration          String
+  date              String
+  clientId          String
+  client            Client          @relation(fields: [clientId], references: [id])
+  challenge         String
+  solution          String
+  showOnHomepage    Boolean         @default(true) @map("show_on_homepage")
+  createdBy         String?
+  creator           User?           @relation("CreatedBy", fields: [createdBy], references: [id])
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  gallery           Gallery[]
+
+  @@map("projects")
+}
+
+model Gallery {
+  id          String    @id @default(uuid())
+  url         String
+  title       String?
+  description String?
+  order       Int       @default(0)
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("gallery")
 }
 
 enum UserRole {
@@ -65,4 +96,10 @@ enum ProjectType {
 enum ProjectStatus {
   DRAFT
   PUBLISHED
+}
+
+enum ProjectCategory {
+  ESTACIONES
+  TIENDAS
+  COMERCIALES
 }

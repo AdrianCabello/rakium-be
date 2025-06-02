@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { UpdateProjectDto } from '../dto/update-project.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('projects')
@@ -28,6 +29,13 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
+  @ApiOperation({ summary: 'Obtener proyectos destacados' })
+  @ApiResponse({ status: 200, description: 'Lista de proyectos destacados obtenida exitosamente' })
+  @Get('featured')
+  findFeatured() {
+    return this.projectsService.findFeatured();
+  }
+
   @ApiOperation({ summary: 'Obtener un proyecto por ID' })
   @ApiResponse({ status: 200, description: 'Proyecto encontrado' })
   @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
@@ -40,7 +48,7 @@ export class ProjectsController {
   @ApiResponse({ status: 200, description: 'Proyecto actualizado exitosamente' })
   @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: Partial<CreateProjectDto>) {
+  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
     return this.projectsService.update(id, updateProjectDto);
   }
 

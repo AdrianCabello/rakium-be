@@ -1,12 +1,11 @@
 [build]
 builder = "nixpacks"
-buildCommand = "rm -rf node_modules package-lock.json && npm install && npm run build"
+buildCommand = "npm install && npm run build && npm run seed"
 
 [deploy]
-startCommand = "npm run start:prod"
+startCommand = "node dist/src/main"
 healthcheckPath = "/api"
 healthcheckTimeout = 100
-restartPolicyType = "on-failure"
 restartPolicyMaxRetries = 10
 
 [phases.setup]

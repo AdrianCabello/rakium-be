@@ -1,46 +1,44 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { ProjectCategory } from './create-project.dto';
 
-export enum ProjectCategory {
-  ESTACIONES = 'ESTACIONES',
-  TIENDAS = 'TIENDAS',
-  COMERCIALES = 'COMERCIALES',
-}
-
-export class CreateProjectDto {
+export class UpdateProjectDto {
   @ApiProperty({
     description: 'Título del proyecto',
     example: 'Remodelación de estación de servicio',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  title: string;
+  @IsOptional()
+  title?: string;
 
   @ApiProperty({
     description: 'Categoría del proyecto',
     enum: ProjectCategory,
     example: ProjectCategory.ESTACIONES,
+    required: false,
   })
   @IsEnum(ProjectCategory)
-  @IsNotEmpty()
-  category: ProjectCategory;
+  @IsOptional()
+  category?: ProjectCategory;
 
   @ApiProperty({
     description: 'Descripción corta del proyecto',
     example: 'Remodelación completa de estación de servicio en zona norte',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  description: string;
+  @IsOptional()
+  description?: string;
 
   @ApiProperty({
     description: 'Descripción detallada del proyecto',
     example: 'Proyecto de remodelación integral...',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  longDescription: string;
+  @IsOptional()
+  longDescription?: string;
 
   @ApiProperty({
     description: 'URL de la imagen antes del proyecto',
@@ -63,112 +61,121 @@ export class CreateProjectDto {
   @ApiProperty({
     description: 'Latitud de la ubicación del proyecto',
     example: 19.4326,
+    required: false,
   })
   @IsNumber()
   @Min(-90)
   @Max(90)
-  @IsNotEmpty()
-  latitude: number;
+  @IsOptional()
+  latitude?: number;
 
   @ApiProperty({
     description: 'Longitud de la ubicación del proyecto',
     example: -99.1332,
+    required: false,
   })
   @IsNumber()
   @Min(-180)
   @Max(180)
-  @IsNotEmpty()
-  longitude: number;
+  @IsOptional()
+  longitude?: number;
 
   @ApiProperty({
     description: 'Dirección formateada del proyecto',
     example: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  address: string;
+  @IsOptional()
+  address?: string;
 
   @ApiProperty({
     description: 'País del proyecto',
     example: 'México',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase())
-  country: string;
+  @IsOptional()
+  country?: string;
 
   @ApiProperty({
     description: 'Estado/Provincia del proyecto',
     example: 'Ciudad de México',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase())
-  state: string;
+  @IsOptional()
+  state?: string;
 
   @ApiProperty({
     description: 'Ciudad del proyecto',
     example: 'Benito Juárez',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase())
-  city: string;
+  @IsOptional()
+  city?: string;
 
   @ApiProperty({
     description: 'Área del proyecto',
     example: '500m²',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  area: string;
+  @IsOptional()
+  area?: string;
 
   @ApiProperty({
     description: 'Duración del proyecto',
     example: '3 meses',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  duration: string;
+  @IsOptional()
+  duration?: string;
 
   @ApiProperty({
     description: 'Fecha del proyecto',
     example: '2024-03-15',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  date: string;
+  @IsOptional()
+  date?: string;
 
   @ApiProperty({
     description: 'ID del cliente al que pertenece el proyecto',
     example: '123e4567-e89b-12d3-a456-426614174000',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  clientId: string;
+  @IsOptional()
+  clientId?: string;
 
   @ApiProperty({
     description: 'Desafío del proyecto',
     example: 'Mantener operaciones durante la remodelación',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  challenge: string;
+  @IsOptional()
+  challenge?: string;
 
   @ApiProperty({
     description: 'Solución implementada',
     example: 'Trabajo por fases y horarios especiales',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  solution: string;
+  @IsOptional()
+  solution?: string;
 
   @ApiProperty({
     description: 'Mostrar en la página principal',
     example: true,
-    default: true,
+    required: false,
   })
   @IsBoolean()
   @IsOptional()
-  showOnHomepage?: boolean = true;
+  showOnHomepage?: boolean;
 } 
