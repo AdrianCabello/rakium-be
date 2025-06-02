@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto } from '../dto/create-client.dto';
 import { Prisma } from '@prisma/client';
@@ -6,6 +6,21 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class ClientsService {
   constructor(private prisma: PrismaService) {}
+
+  private handlePrismaError(error: any) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('El email ya está registrado');
+      }
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Recurso no encontrado');
+      }
+      if (error.code === 'P1001') {
+        throw new InternalServerErrorException('Error de conexión con la base de datos');
+      }
+    }
+    throw error;
+  }
 
   async create(createClientDto: CreateClientDto) {
     try {
@@ -22,41 +37,41 @@ export class ClientsService {
         data: createClientDto,
       });
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('El email ya está registrado');
-        }
-      }
-      throw error;
+      this.handlePrismaError(error);
     }
   }
 
   async findAll() {
-    return this.prisma.client.findMany({
-      include: {
-        projects: true,
-        users: true,
-      },
-    });
+    try {
+      return this.prisma.client.findMany({
+        include: {
+          projects: true,
+          users: true,
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error);
+    }
   }
 
   async findOne(id: string) {
-    const client = await this.prisma.client.findUnique({
-      where: { id },
-      include: {
-        projects: true,
-        users: true,
-      },
-    });
+    try {
+      const client = await this.prisma.client.findUnique({
+        where: { id },
+        include: {
+          projects: true,
+          users: true,
+        },
+      });
 
-    if (!client) {
-      throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+      if (!client) {
+        throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+      }
+
+      return client;
+    } catch (error) {
+      this.handlePrismaError(error);
     }
-
-    return client;
   }
 
   async update(id: string, updateClientDto: Partial<CreateClientDto>) {
@@ -83,15 +98,7 @@ export class ClientsService {
         data: updateClientDto,
       });
     } catch (error) {
-      if (error instanceof ConflictException || error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('El email ya está registrado');
-        }
-      }
-      throw error;
+      this.handlePrismaError(error);
     }
   }
 
@@ -104,10 +111,7 @@ export class ClientsService {
         where: { id },
       });
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw error;
+      this.handlePrismaError(error);
     }
   }
 } 
