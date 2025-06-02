@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { UpdateProjectDto } from '../dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -25,6 +26,9 @@ export class ProjectsService {
         client: true,
         creator: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -45,10 +49,26 @@ export class ProjectsService {
         client: true,
         creator: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
-  async update(id: string, updateProjectDto: Partial<CreateProjectDto>) {
+  async findFeatured() {
+    return this.prisma.project.findMany({
+      where: { showOnHomepage: true },
+      include: {
+        client: true,
+        creator: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async update(id: string, updateProjectDto: UpdateProjectDto) {
     return this.prisma.project.update({
       where: { id },
       data: updateProjectDto,

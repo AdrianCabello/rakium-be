@@ -22,67 +22,74 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# Rakium Backend
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Descripción
+Backend para la plataforma Rakium, desarrollado con NestJS y PostgreSQL.
 
-## Project setup
+## Tecnologías
+- NestJS 10
+- PostgreSQL
+- Prisma ORM
+- JWT Authentication
+- Swagger/OpenAPI
 
+## Desarrollo Local
+
+### Prerrequisitos
+- Node.js 18
+- PostgreSQL
+- npm o yarn
+
+### Instalación
 ```bash
-$ npm install
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus configuraciones
+
+# Generar cliente Prisma
+npx prisma generate
+
+# Ejecutar migraciones
+npx prisma migrate dev
+
+# Iniciar el servidor de desarrollo
+npm run start:dev
 ```
 
-## Compile and run the project
-
+### Base de datos
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Abrir Prisma Studio
+npx prisma studio
 ```
 
-## Run tests
+## Despliegue
+El proyecto se despliega automáticamente en Railway cuando se hace push a la rama main.
 
-```bash
-# unit tests
-$ npm run test
+### CI/CD
+- GitHub Actions para integración continua
+- Despliegue automático en Railway
+- Tests automatizados
 
-# e2e tests
-$ npm run test:e2e
+### Variables de Entorno Requeridas
+- `DATABASE_URL`: URL de conexión a PostgreSQL
+- `JWT_SECRET`: Clave secreta para JWT
+- `JWT_EXPIRATION`: Tiempo de expiración del token JWT
+- `PORT`: Puerto del servidor (default: 3000)
 
-# test coverage
-$ npm run test:cov
-```
+## Documentación API
+La documentación de la API está disponible en `/api` cuando el servidor está en ejecución.
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Scripts Disponibles
+- `npm run start`: Inicia el servidor
+- `npm run start:dev`: Inicia el servidor en modo desarrollo
+- `npm run build`: Compila el proyecto
+- `npm run test`: Ejecuta los tests
+- `npm run lint`: Ejecuta el linter
+- `npm run format`: Formatea el código
 
 ## Support
 
