@@ -1,13 +1,15 @@
 import { PrismaClient, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-});
+// Verificar que DATABASE_URL esté definida
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL no está definida en las variables de entorno');
+  process.exit(1);
+}
+
+console.log('Usando base de datos:', process.env.DATABASE_URL);
+
+const prisma = new PrismaClient();
 
 async function main() {
   try {
@@ -24,9 +26,13 @@ async function main() {
       },
     });
 
-    console.log({ admin });
+    console.log('Usuario administrador creado:', { 
+      id: admin.id,
+      email: admin.email,
+      role: admin.role 
+    });
   } catch (error) {
-    console.error('Error during seed:', error);
+    console.error('Error durante el seed:', error);
     throw error;
   }
 }
