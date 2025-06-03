@@ -70,7 +70,7 @@ async function main() {
     // Crear proyecto de ejemplo
     const project = await prisma.project.create({
       data: {
-        title: 'Proyecto de Ejemplo',
+        name: 'Proyecto de Ejemplo',
         category: ProjectCategory.ESTACIONES,
         description: 'Descripción corta del proyecto',
         longDescription: 'Descripción detallada del proyecto de ejemplo',
@@ -111,7 +111,7 @@ async function main() {
 
     console.log('Proyecto de ejemplo creado:', {
       id: project.id,
-      title: project.title,
+      name: project.name,
       category: project.category
     });
 

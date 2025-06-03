@@ -37,7 +37,7 @@ model Client {
 
 model Project {
   id                String          @id @default(uuid())
-  title             String
+  name              String
   category          ProjectCategory
   description       String
   longDescription   String          @map("long_description")
@@ -62,6 +62,8 @@ model Project {
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
   gallery           Gallery[]
+
+  @@map("Project")
 }
 
 model Gallery {

@@ -4,13 +4,13 @@ import { ProjectCategory } from './create-project.dto';
 
 export class UpdateProjectDto {
   @ApiProperty({
-    description: 'Título del proyecto',
+    description: 'Nombre del proyecto',
     example: 'Remodelación de estación de servicio',
     required: false,
   })
   @IsString()
   @IsOptional()
-  title?: string;
+  name?: string;
 
   @ApiProperty({
     description: 'Categoría del proyecto',

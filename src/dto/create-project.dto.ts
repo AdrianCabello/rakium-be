@@ -10,12 +10,12 @@ export enum ProjectCategory {
 
 export class CreateProjectDto {
   @ApiProperty({
-    description: 'Título del proyecto',
+    description: 'Nombre del proyecto',
     example: 'Remodelación de estación de servicio',
   })
   @IsString()
   @IsNotEmpty()
-  title: string;
+  name: string;
 
   @ApiProperty({
     description: 'Categoría del proyecto',
