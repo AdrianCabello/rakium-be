@@ -62,8 +62,6 @@ model Project {
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
   gallery           Gallery[]
-
-  @@map("projects")
 }
 
 model Gallery {
@@ -76,8 +74,6 @@ model Gallery {
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  @@map("gallery")
 }
 
 enum UserRole {
