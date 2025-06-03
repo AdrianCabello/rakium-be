@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, ProjectCategory } from '@prisma/client';
+import { PrismaClient, UserRole, ProjectCategory, ProjectType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 // Verificar que DATABASE_URL esté definida
@@ -71,6 +71,7 @@ async function main() {
     const project = await prisma.project.create({
       data: {
         name: 'Proyecto de Ejemplo',
+        type: ProjectType.LANDING,
         category: ProjectCategory.ESTACIONES,
         description: 'Descripción corta del proyecto',
         longDescription: 'Descripción detallada del proyecto de ejemplo',
@@ -112,6 +113,7 @@ async function main() {
     console.log('Proyecto de ejemplo creado:', {
       id: project.id,
       name: project.name,
+      type: project.type,
       category: project.category
     });
 

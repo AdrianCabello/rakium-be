@@ -8,6 +8,13 @@ export enum ProjectCategory {
   COMERCIALES = 'COMERCIALES',
 }
 
+export enum ProjectType {
+  LANDING = 'LANDING',
+  ECOMMERCE = 'ECOMMERCE',
+  INMOBILIARIA = 'INMOBILIARIA',
+  CUSTOM = 'CUSTOM',
+}
+
 export class CreateProjectDto {
   @ApiProperty({
     description: 'Nombre del proyecto',
@@ -16,6 +23,15 @@ export class CreateProjectDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({
+    description: 'Tipo del proyecto',
+    enum: ProjectType,
+    example: ProjectType.LANDING,
+  })
+  @IsEnum(ProjectType)
+  @IsNotEmpty()
+  type: ProjectType;
 
   @ApiProperty({
     description: 'Categoría del proyecto',

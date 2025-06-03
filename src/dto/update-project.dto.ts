@@ -1,6 +1,6 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProjectCategory } from './create-project.dto';
+import { ProjectCategory, ProjectType } from './create-project.dto';
 
 export class UpdateProjectDto {
   @ApiProperty({
@@ -11,6 +11,16 @@ export class UpdateProjectDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @ApiProperty({
+    description: 'Tipo del proyecto',
+    enum: ProjectType,
+    example: ProjectType.LANDING,
+    required: false,
+  })
+  @IsEnum(ProjectType)
+  @IsOptional()
+  type?: ProjectType;
 
   @ApiProperty({
     description: 'Categoría del proyecto',
