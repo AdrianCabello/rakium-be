@@ -1,6 +1,6 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProjectCategory, ProjectType } from './create-project.dto';
+import { ProjectCategory, ProjectType, ProjectStatus } from './create-project.dto';
 
 export class UpdateProjectDto {
   @ApiProperty({
@@ -21,6 +21,16 @@ export class UpdateProjectDto {
   @IsEnum(ProjectType)
   @IsOptional()
   type?: ProjectType;
+
+  @ApiProperty({
+    description: 'Estado del proyecto',
+    enum: ProjectStatus,
+    example: ProjectStatus.DRAFT,
+    required: false,
+  })
+  @IsEnum(ProjectStatus)
+  @IsOptional()
+  status?: ProjectStatus;
 
   @ApiProperty({
     description: 'Categoría del proyecto',

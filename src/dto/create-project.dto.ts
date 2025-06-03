@@ -15,6 +15,11 @@ export enum ProjectType {
   CUSTOM = 'CUSTOM',
 }
 
+export enum ProjectStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+}
+
 export class CreateProjectDto {
   @ApiProperty({
     description: 'Nombre del proyecto',
@@ -32,6 +37,15 @@ export class CreateProjectDto {
   @IsEnum(ProjectType)
   @IsNotEmpty()
   type: ProjectType;
+
+  @ApiProperty({
+    description: 'Estado del proyecto',
+    enum: ProjectStatus,
+    example: ProjectStatus.DRAFT,
+  })
+  @IsEnum(ProjectStatus)
+  @IsNotEmpty()
+  status: ProjectStatus;
 
   @ApiProperty({
     description: 'Categoría del proyecto',

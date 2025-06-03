@@ -43,6 +43,7 @@ model Project {
   id                String          @id @default(uuid())
   name              String
   type              ProjectType
+  status            ProjectStatus   @default(DRAFT)
   category          ProjectCategory
   description       String
   longDescription   String          @map("long_description")

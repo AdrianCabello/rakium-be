@@ -1,5 +1,6 @@
-import { PrismaClient, UserRole, ProjectCategory, ProjectType } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { PrismaClient } from '@prisma/client';
+import { hash } from 'bcrypt';
+import { ProjectType, ProjectStatus } from '../src/dto/create-project.dto';
 
 // Verificar que DATABASE_URL esté definida
 if (!process.env.DATABASE_URL) {
@@ -13,16 +14,17 @@ const prisma = new PrismaClient();
 
 async function main() {
   try {
-    // Crear usuario administrador
-    const adminPassword = await bcrypt.hash('Admin123!', 10);
-    
+    // Crear usuario admin
+    const adminPassword = await hash('admin123', 10);
     const admin = await prisma.user.upsert({
       where: { email: 'admin@rakium.com' },
       update: {},
       create: {
         email: 'admin@rakium.com',
-        passwordHash: adminPassword,
-        role: UserRole.ADMIN,
+        password: adminPassword,
+        role: 'ADMIN',
+        firstName: 'Admin',
+        lastName: 'Rakium',
       },
     });
 
@@ -34,29 +36,42 @@ async function main() {
 
     // Crear cliente de ejemplo
     const client = await prisma.client.upsert({
-      where: { email: 'cliente@ejemplo.com' },
+      where: { name: 'Cliente Ejemplo' },
       update: {},
       create: {
         name: 'Cliente Ejemplo',
-        email: 'cliente@ejemplo.com',
+        description: 'Cliente de ejemplo para pruebas',
+        logo: 'https://ejemplo.com/logo.png',
+        website: 'https://ejemplo.com',
+        industry: 'Tecnología',
+        foundedYear: 2020,
+        headquarters: 'Ciudad de México',
+        createdById: admin.id,
       },
     });
 
     console.log('Cliente de ejemplo creado:', {
       id: client.id,
       name: client.name,
-      email: client.email
+      description: client.description,
+      logo: client.logo,
+      website: client.website,
+      industry: client.industry,
+      foundedYear: client.foundedYear,
+      headquarters: client.headquarters
     });
 
-    // Crear usuario cliente
-    const clientUserPassword = await bcrypt.hash('Cliente123!', 10);
+    // Crear usuario del cliente
+    const clientUserPassword = await hash('client123', 10);
     const clientUser = await prisma.user.upsert({
-      where: { email: 'usuario@cliente.com' },
+      where: { email: 'cliente@ejemplo.com' },
       update: {},
       create: {
-        email: 'usuario@cliente.com',
-        passwordHash: clientUserPassword,
-        role: UserRole.CLIENT,
+        email: 'cliente@ejemplo.com',
+        password: clientUserPassword,
+        role: 'CLIENT',
+        firstName: 'Usuario',
+        lastName: 'Cliente',
         clientId: client.id,
       },
     });
@@ -68,6 +83,9 @@ async function main() {
     });
 
     // Crear proyecto de ejemplo
+    const project = await prisma.project.upsert({
+      where: { name: 'Proyecto Ejemplo' },
+      update: {},
     const project = await prisma.project.create({
       data: {
         name: 'Proyecto de Ejemplo',
