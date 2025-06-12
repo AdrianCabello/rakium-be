@@ -1,6 +1,6 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProjectCategory, ProjectType, ProjectStatus } from './create-project.dto';
+import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
 
 export class UpdateProjectDto {
   @ApiProperty({

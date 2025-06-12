@@ -42,31 +42,32 @@ model Client {
 model Project {
   id                String          @id @default(uuid())
   name              String
-  type              ProjectType
+  type              ProjectType?
   status            ProjectStatus   @default(DRAFT)
   category          ProjectCategory
-  description       String
-  longDescription   String          @map("long_description")
+  description       String?
+  longDescription   String?         @map("long_description")
   imageBefore       String?         @map("image_before")
   imageAfter        String?         @map("image_after")
-  latitude          Float           @map("latitude")
-  longitude         Float           @map("longitude")
-  address           String          @map("address")
-  country           String          @map("country")
-  state             String          @map("state")
-  city              String          @map("city")
-  area              String
-  duration          String
-  date              String
+  latitude          Float?          @map("latitude")
+  longitude         Float?          @map("longitude")
+  address           String?
+  country           String?
+  state             String?
+  city              String?
+  area              String?
+  duration          String?
+  date              String?
+  url               String?
   clientId          String
   client            Client          @relation(fields: [clientId], references: [id])
-  challenge         String
-  solution          String
+  challenge         String?
+  solution          String?
   showOnHomepage    Boolean         @default(true) @map("show_on_homepage")
   createdBy         String?
   creator           User?           @relation("CreatedBy", fields: [createdBy], references: [id])
-  createdAt         DateTime        @default(now()) @map("created_at")
-  updatedAt         DateTime        @updatedAt @map("updated_at")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
   gallery           Gallery[]
 
   @@map("Project")
@@ -80,8 +81,8 @@ model Gallery {
   order       Int       @default(0)
   projectId   String
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("Gallery")
 }

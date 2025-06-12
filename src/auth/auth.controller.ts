@@ -23,7 +23,7 @@ export class AuthController {
           type: 'object',
           properties: {
             id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
-            email: { type: 'string', example: 'usuario@ejemplo.com' },
+            email: { type: 'string', example: 'admin@rakium.com' },
             role: { type: 'string', example: 'ADMIN' },
             clientId: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
           },

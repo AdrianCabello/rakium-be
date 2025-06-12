@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { hash } from 'bcrypt';
-import { ProjectType, ProjectStatus } from '../src/dto/create-project.dto';
+import { PrismaClient, UserRole, ProjectType, ProjectStatus, ProjectCategory } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 // Verificar que DATABASE_URL esté definida
 if (!process.env.DATABASE_URL) {
@@ -14,129 +13,96 @@ const prisma = new PrismaClient();
 
 async function main() {
   try {
-    // Crear usuario admin
-    const adminPassword = await hash('admin123', 10);
+    // Crear usuario administrador
+    const adminPassword = await bcrypt.hash('admin123', 10);
     const admin = await prisma.user.upsert({
       where: { email: 'admin@rakium.com' },
       update: {},
       create: {
         email: 'admin@rakium.com',
-        password: adminPassword,
-        role: 'ADMIN',
-        firstName: 'Admin',
-        lastName: 'Rakium',
+        passwordHash: adminPassword,
+        role: UserRole.ADMIN,
       },
     });
 
-    console.log('Usuario administrador creado:', { 
+    console.log('Usuario administrador creado:', {
       id: admin.id,
       email: admin.email,
-      role: admin.role 
+      role: admin.role,
     });
 
     // Crear cliente de ejemplo
     const client = await prisma.client.upsert({
-      where: { name: 'Cliente Ejemplo' },
+      where: { email: 'cliente@ejemplo.com' },
       update: {},
       create: {
         name: 'Cliente Ejemplo',
-        description: 'Cliente de ejemplo para pruebas',
-        logo: 'https://ejemplo.com/logo.png',
-        website: 'https://ejemplo.com',
-        industry: 'Tecnología',
-        foundedYear: 2020,
-        headquarters: 'Ciudad de México',
-        createdById: admin.id,
+        email: 'cliente@ejemplo.com',
       },
     });
 
     console.log('Cliente de ejemplo creado:', {
       id: client.id,
       name: client.name,
-      description: client.description,
-      logo: client.logo,
-      website: client.website,
-      industry: client.industry,
-      foundedYear: client.foundedYear,
-      headquarters: client.headquarters
+      email: client.email,
     });
 
     // Crear usuario del cliente
-    const clientUserPassword = await hash('client123', 10);
+    const clientUserPassword = await bcrypt.hash('cliente123', 10);
     const clientUser = await prisma.user.upsert({
-      where: { email: 'cliente@ejemplo.com' },
+      where: { email: 'usuario@cliente.com' },
       update: {},
       create: {
-        email: 'cliente@ejemplo.com',
-        password: clientUserPassword,
-        role: 'CLIENT',
-        firstName: 'Usuario',
-        lastName: 'Cliente',
+        email: 'usuario@cliente.com',
+        passwordHash: clientUserPassword,
+        role: UserRole.CLIENT,
         clientId: client.id,
       },
     });
 
-    console.log('Usuario cliente creado:', {
+    console.log('Usuario del cliente creado:', {
       id: clientUser.id,
       email: clientUser.email,
-      role: clientUser.role
+      role: clientUser.role,
+      clientId: clientUser.clientId,
     });
 
     // Crear proyecto de ejemplo
-    const project = await prisma.project.upsert({
-      where: { name: 'Proyecto Ejemplo' },
-      update: {},
     const project = await prisma.project.create({
       data: {
-        name: 'Proyecto de Ejemplo',
+        name: 'Proyecto Ejemplo',
         type: ProjectType.LANDING,
+        status: ProjectStatus.DRAFT,
         category: ProjectCategory.ESTACIONES,
         description: 'Descripción corta del proyecto',
-        longDescription: 'Descripción detallada del proyecto de ejemplo',
-        imageBefore: 'https://ejemplo.com/antes.jpg',
-        imageAfter: 'https://ejemplo.com/despues.jpg',
+        longDescription: 'Descripción detallada del proyecto',
         latitude: 19.4326,
         longitude: -99.1332,
-        address: 'Av. Ejemplo 123',
+        address: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
         country: 'México',
         state: 'Ciudad de México',
-        city: 'CDMX',
-        area: '1000 m²',
+        city: 'Benito Juárez',
+        area: '500m²',
         duration: '3 meses',
-        date: '2024-02-06',
-        challenge: 'Desafío del proyecto',
-        solution: 'Solución implementada',
-        showOnHomepage: true,
+        date: '2024-03-15',
         clientId: client.id,
+        challenge: 'Mantener operaciones durante la remodelación',
+        solution: 'Trabajo por fases y horarios especiales',
+        showOnHomepage: true,
         createdBy: admin.id,
-        gallery: {
-          create: [
-            {
-              url: 'https://ejemplo.com/galeria1.jpg',
-              title: 'Imagen 1',
-              description: 'Descripción de la imagen 1',
-              order: 1
-            },
-            {
-              url: 'https://ejemplo.com/galeria2.jpg',
-              title: 'Imagen 2',
-              description: 'Descripción de la imagen 2',
-              order: 2
-            }
-          ]
-        }
-      }
+      },
     });
 
     console.log('Proyecto de ejemplo creado:', {
       id: project.id,
       name: project.name,
       type: project.type,
-      category: project.category
+      status: project.status,
+      category: project.category,
     });
 
   } catch (error) {
-    console.error('Error durante el seed:', error);
+    console.error('Error durante la ejecución del seed:', error);
     throw error;
   }
 }

@@ -1,36 +1,19 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-
-export enum ProjectCategory {
-  ESTACIONES = 'ESTACIONES',
-  TIENDAS = 'TIENDAS',
-  COMERCIALES = 'COMERCIALES',
-}
-
-export enum ProjectType {
-  LANDING = 'LANDING',
-  ECOMMERCE = 'ECOMMERCE',
-  INMOBILIARIA = 'INMOBILIARIA',
-  CUSTOM = 'CUSTOM',
-}
-
-export enum ProjectStatus {
-  DRAFT = 'DRAFT',
-  PUBLISHED = 'PUBLISHED',
-}
+import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
 
 export class CreateProjectDto {
   @ApiProperty({
     description: 'Nombre del proyecto',
-    example: 'Remodelación de estación de servicio',
+    example: 'Proyecto de ejemplo',
   })
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    description: 'Tipo del proyecto',
+    description: 'Tipo de proyecto',
     enum: ProjectType,
     example: ProjectType.LANDING,
     required: false,
@@ -60,7 +43,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Descripción corta del proyecto',
-    example: 'Remodelación completa de estación de servicio en zona norte',
+    example: 'Descripción breve del proyecto',
     required: false,
   })
   @IsString()
@@ -68,8 +51,8 @@ export class CreateProjectDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Descripción detallada del proyecto',
-    example: 'Proyecto de remodelación integral...',
+    description: 'Descripción larga del proyecto',
+    example: 'Descripción detallada del proyecto',
     required: false,
   })
   @IsString()
@@ -96,7 +79,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Latitud de la ubicación del proyecto',
-    example: 19.4326,
+    example: 40.4168,
     required: false,
   })
   @IsNumber()
@@ -107,7 +90,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Longitud de la ubicación del proyecto',
-    example: -99.1332,
+    example: -3.7038,
     required: false,
   })
   @IsNumber()
@@ -117,8 +100,8 @@ export class CreateProjectDto {
   longitude?: number;
 
   @ApiProperty({
-    description: 'Dirección formateada del proyecto',
-    example: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
+    description: 'Dirección del proyecto',
+    example: 'Calle Principal 123',
     required: false,
   })
   @IsString()
@@ -127,7 +110,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'País del proyecto',
-    example: 'México',
+    example: 'España',
     required: false,
   })
   @IsString()
@@ -137,7 +120,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Estado/Provincia del proyecto',
-    example: 'Ciudad de México',
+    example: 'Madrid',
     required: false,
   })
   @IsString()
@@ -147,7 +130,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Ciudad del proyecto',
-    example: 'Benito Juárez',
+    example: 'Madrid',
     required: false,
   })
   @IsString()
@@ -157,7 +140,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Área del proyecto',
-    example: '500m²',
+    example: '100m²',
     required: false,
   })
   @IsString()
@@ -175,7 +158,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: 'Fecha del proyecto',
-    example: '2024-03-15',
+    example: '2024-01-01',
     required: false,
   })
   @IsString()
@@ -183,16 +166,25 @@ export class CreateProjectDto {
   date?: string;
 
   @ApiProperty({
-    description: 'ID del cliente al que pertenece el proyecto',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'URL del proyecto',
+    example: 'https://ejemplo.com/proyecto',
+    required: false,
   })
   @IsString()
+  @IsOptional()
+  url?: string;
+
+  @ApiProperty({
+    description: 'ID del cliente',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
   @IsNotEmpty()
   clientId: string;
 
   @ApiProperty({
     description: 'Desafío del proyecto',
-    example: 'Mantener operaciones durante la remodelación',
+    example: 'Desafío principal del proyecto',
     required: false,
   })
   @IsString()
@@ -200,8 +192,8 @@ export class CreateProjectDto {
   challenge?: string;
 
   @ApiProperty({
-    description: 'Solución implementada',
-    example: 'Trabajo por fases y horarios especiales',
+    description: 'Solución del proyecto',
+    example: 'Solución implementada',
     required: false,
   })
   @IsString()
@@ -209,11 +201,11 @@ export class CreateProjectDto {
   solution?: string;
 
   @ApiProperty({
-    description: 'Mostrar en la página principal',
+    description: 'Indica si el proyecto debe mostrarse en la página principal',
     example: true,
     default: true,
   })
   @IsBoolean()
   @IsNotEmpty()
-  showOnHomepage: boolean = true;
+  showOnHomepage: boolean;
 } 

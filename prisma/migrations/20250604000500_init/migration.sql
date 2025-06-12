@@ -37,7 +37,9 @@ CREATE TABLE "Client" (
 -- CreateTable
 CREATE TABLE "Project" (
     "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" "ProjectType" NOT NULL,
+    "status" "ProjectStatus" NOT NULL DEFAULT 'DRAFT',
     "category" "ProjectCategory" NOT NULL,
     "description" TEXT NOT NULL,
     "long_description" TEXT NOT NULL,
@@ -52,6 +54,7 @@ CREATE TABLE "Project" (
     "area" TEXT NOT NULL,
     "duration" TEXT NOT NULL,
     "date" TEXT NOT NULL,
+    "url" TEXT,
     "clientId" TEXT NOT NULL,
     "challenge" TEXT NOT NULL,
     "solution" TEXT NOT NULL,
