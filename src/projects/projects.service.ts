@@ -19,11 +19,16 @@ export class ProjectsService {
         throw new NotFoundException(`No se encontró ningún cliente con el ID: ${createProjectDto.clientId}`);
       }
 
+      // Preparar los datos del proyecto
+      const projectData = {
+        ...createProjectDto,
+        createdBy: userId,
+        // Si type es undefined o null, no lo incluimos en los datos
+        ...(createProjectDto.type === undefined || createProjectDto.type === null ? {} : { type: createProjectDto.type }),
+      };
+
       return this.prisma.project.create({
-        data: {
-          ...createProjectDto,
-          createdBy: userId,
-        },
+        data: projectData,
         include: {
           client: true,
           creator: true,
@@ -95,9 +100,16 @@ export class ProjectsService {
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {
+    // Preparar los datos de actualización
+    const updateData = {
+      ...updateProjectDto,
+      // Si type es undefined o null, no lo incluimos en los datos
+      ...(updateProjectDto.type === undefined || updateProjectDto.type === null ? {} : { type: updateProjectDto.type }),
+    };
+
     return this.prisma.project.update({
       where: { id },
-      data: updateProjectDto,
+      data: updateData,
       include: {
         client: true,
         creator: true,
