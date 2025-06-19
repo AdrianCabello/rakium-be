@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
+import { Public } from '../auth/public.decorator';
 
 @ApiTags('projects')
 @ApiBearerAuth()
@@ -117,5 +118,14 @@ export class ProjectsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
+  }
+
+  @Get('client/:clientId')
+  @Public()
+  @ApiOperation({ summary: 'Obtener proyectos de un cliente' })
+  @ApiParam({ name: 'clientId', description: 'ID del cliente' })
+  @ApiResponse({ status: 200, description: 'Lista de proyectos del cliente' })
+  async findAllByClientId(@Param('clientId') clientId: string) {
+    return this.projectsService.findAllByClientId(clientId);
   }
 } 

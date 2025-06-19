@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
 
@@ -161,6 +161,7 @@ export class UpdateProjectDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(1000)
   date?: string;
 
   @ApiProperty({
@@ -179,6 +180,7 @@ export class UpdateProjectDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(1000)
   challenge?: string;
 
   @ApiProperty({
@@ -188,6 +190,7 @@ export class UpdateProjectDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(1000)
   solution?: string;
 
   @ApiProperty({
@@ -198,4 +201,14 @@ export class UpdateProjectDto {
   @IsBoolean()
   @IsOptional()
   showOnHomepage?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  url?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  createdBy?: string;
 } 

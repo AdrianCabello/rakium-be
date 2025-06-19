@@ -55,11 +55,10 @@ export class ProjectsService {
     return this.prisma.project.findMany({
       include: {
         client: true,
-        creator: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+        gallery: true,
+        beforeImage: true,
+        afterImage: true
+      }
     });
   }
 
@@ -99,6 +98,42 @@ export class ProjectsService {
     });
   }
 
+  async findPublicByClient(clientId: string) {
+    // Verificar que el cliente existe
+    const client = await this.prisma.client.findUnique({
+      where: { id: clientId },
+    });
+
+    if (!client) {
+      throw new NotFoundException(`No se encontró ningún cliente con el ID: ${clientId}`);
+    }
+
+    return this.prisma.project.findMany({
+      where: { 
+        clientId,
+        showOnHomepage: true,
+        status: 'PUBLISHED'
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        gallery: {
+          orderBy: {
+            order: 'asc'
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
   async update(id: string, updateProjectDto: UpdateProjectDto) {
     // Preparar los datos de actualización
     const updateData = {
@@ -120,6 +155,21 @@ export class ProjectsService {
   async remove(id: string) {
     return this.prisma.project.delete({
       where: { id },
+    });
+  }
+
+  async findAllByClientId(clientId: string) {
+    return this.prisma.project.findMany({
+      where: { 
+        clientId,
+        status: 'PUBLISHED'
+      },
+      include: {
+        client: true,
+        gallery: true,
+        beforeImage: true,
+        afterImage: true
+      }
     });
   }
 } 

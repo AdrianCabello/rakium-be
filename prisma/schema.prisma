@@ -43,7 +43,7 @@ model Project {
   id                String          @id @default(uuid())
   name              String
   type              ProjectType?
-  status            ProjectStatus   @default(DRAFT)
+  status            ProjectStatus   @default(PENDING) @map("status")
   category          ProjectCategory
   description       String?
   longDescription   String?         @map("long_description")
@@ -59,18 +59,21 @@ model Project {
   duration          String?
   date              String?
   url               String?
-  clientId          String
-  client            Client          @relation(fields: [clientId], references: [id])
+  clientId          String        @map("client_id")
+  client            Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
   challenge         String?
   solution          String?
-  showOnHomepage    Boolean         @default(true) @map("show_on_homepage")
-  createdBy         String?
-  creator           User?           @relation("CreatedBy", fields: [createdBy], references: [id])
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
   gallery           Gallery[]
+  beforeImage       Gallery?      @relation("BeforeImage", fields: [beforeImageId], references: [id])
+  beforeImageId     String?       @unique @map("before_image_id")
+  afterImage        Gallery?      @relation("AfterImage", fields: [afterImageId], references: [id])
+  afterImageId      String?       @unique @map("after_image_id")
+  createdBy         String?
+  creator           User?         @relation("CreatedBy", fields: [createdBy], references: [id])
 
-  @@map("Project")
+  @@map("projects")
 }
 
 model Gallery {
@@ -81,6 +84,8 @@ model Gallery {
   order       Int       @default(0)
   projectId   String
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  beforeImageOf Project? @relation("BeforeImage")
+  afterImageOf  Project? @relation("AfterImage")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -103,6 +108,7 @@ enum ProjectType {
 enum ProjectStatus {
   DRAFT
   PUBLISHED
+  PENDING
 }
 
 enum ProjectCategory {

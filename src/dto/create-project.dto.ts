@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max, IsUUID } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max, IsUUID, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
@@ -163,6 +163,7 @@ export class CreateProjectDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(1000)
   date?: string;
 
   @ApiProperty({
@@ -172,6 +173,7 @@ export class CreateProjectDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(1000)
   url?: string;
 
   @ApiProperty({
@@ -198,6 +200,7 @@ export class CreateProjectDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(1000)
   solution?: string;
 
   @ApiProperty({
@@ -208,4 +211,9 @@ export class CreateProjectDto {
   @IsBoolean()
   @IsNotEmpty()
   showOnHomepage: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  createdBy?: string;
 } 
