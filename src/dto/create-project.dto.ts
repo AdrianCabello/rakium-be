@@ -36,10 +36,11 @@ export class CreateProjectDto {
     description: 'Categoría del proyecto',
     enum: ProjectCategory,
     example: ProjectCategory.ESTACIONES,
+    required: false,
   })
   @IsEnum(ProjectCategory)
-  @IsNotEmpty()
-  category: ProjectCategory;
+  @IsOptional()
+  category?: ProjectCategory;
 
   @ApiProperty({
     description: 'Descripción corta del proyecto',

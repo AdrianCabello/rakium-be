@@ -38,7 +38,7 @@ model Project {
   name            String
   type            ProjectType?
   status          ProjectStatus   @default(DRAFT) @map("status")
-  category        ProjectCategory
+  category        ProjectCategory?
   description     String?
   longDescription String?         @map("long_description")
   imageBefore     String?         @map("image_before")
