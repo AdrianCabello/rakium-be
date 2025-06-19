@@ -56,9 +56,10 @@ export class ProjectsService {
       include: {
         client: true,
         gallery: true,
-        beforeImage: true,
-        afterImage: true
-      }
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -67,7 +68,11 @@ export class ProjectsService {
       where: { id },
       include: {
         client: true,
-        creator: true,
+        gallery: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
       },
     });
   }
@@ -77,7 +82,11 @@ export class ProjectsService {
       where: { clientId },
       include: {
         client: true,
-        creator: true,
+        gallery: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -87,10 +96,51 @@ export class ProjectsService {
 
   async findFeatured() {
     return this.prisma.project.findMany({
-      where: { showOnHomepage: true },
+      where: { 
+        status: 'PUBLISHED'
+      },
       include: {
         client: true,
-        creator: true,
+        gallery: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findAllByClientId(clientId: string) {
+    // Verificar que el cliente existe
+    const client = await this.prisma.client.findUnique({
+      where: { id: clientId },
+    });
+
+    if (!client) {
+      throw new NotFoundException(`No se encontró ningún cliente con el ID: ${clientId}`);
+    }
+
+    return this.prisma.project.findMany({
+      where: { 
+        clientId,
+        status: 'PUBLISHED'
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        gallery: {
+          orderBy: {
+            order: 'asc'
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc',
@@ -111,7 +161,6 @@ export class ProjectsService {
     return this.prisma.project.findMany({
       where: { 
         clientId,
-        showOnHomepage: true,
         status: 'PUBLISHED'
       },
       include: {
@@ -155,21 +204,6 @@ export class ProjectsService {
   async remove(id: string) {
     return this.prisma.project.delete({
       where: { id },
-    });
-  }
-
-  async findAllByClientId(clientId: string) {
-    return this.prisma.project.findMany({
-      where: { 
-        clientId,
-        status: 'PUBLISHED'
-      },
-      include: {
-        client: true,
-        gallery: true,
-        beforeImage: true,
-        afterImage: true
-      }
     });
   }
 } 

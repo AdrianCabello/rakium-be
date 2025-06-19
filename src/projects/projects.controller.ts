@@ -31,7 +31,7 @@ export class ProjectsController {
   @Post()
   @ApiBody({
     type: CreateProjectDto,
-    description: 'Datos del proyecto a crear. Los campos obligatorios son: name, category, clientId y showOnHomepage. El resto son opcionales.',
+    description: 'Datos del proyecto a crear. Los campos obligatorios son: name, category y clientId. El resto son opcionales.',
     examples: {
       proyectoMinimo: {
         summary: 'Ejemplo mínimo de proyecto',
@@ -39,8 +39,7 @@ export class ProjectsController {
           // Campos obligatorios
           name: 'Remodelación Estación Norte',
           category: 'ESTACIONES',
-          clientId: '123e4567-e89b-12d3-a456-426614174000',
-          showOnHomepage: true
+          clientId: '123e4567-e89b-12d3-a456-426614174000'
         }
       },
       proyectoCompleto: {
@@ -50,7 +49,6 @@ export class ProjectsController {
           name: 'Remodelación Estación Norte',
           category: 'ESTACIONES',
           clientId: '123e4567-e89b-12d3-a456-426614174000',
-          showOnHomepage: true,
           
           // Campos opcionales
           status: 'DRAFT',

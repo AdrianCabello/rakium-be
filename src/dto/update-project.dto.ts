@@ -193,15 +193,6 @@ export class UpdateProjectDto {
   @MaxLength(1000)
   solution?: string;
 
-  @ApiProperty({
-    description: 'Mostrar en la página principal',
-    example: true,
-    required: false,
-  })
-  @IsBoolean()
-  @IsOptional()
-  showOnHomepage?: boolean;
-
   @IsOptional()
   @IsString()
   @MaxLength(1000)

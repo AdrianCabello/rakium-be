@@ -203,15 +203,6 @@ export class CreateProjectDto {
   @MaxLength(1000)
   solution?: string;
 
-  @ApiProperty({
-    description: 'Indica si el proyecto debe mostrarse en la página principal',
-    example: true,
-    default: true,
-  })
-  @IsBoolean()
-  @IsNotEmpty()
-  showOnHomepage: boolean;
-
   @IsOptional()
   @IsString()
   @MaxLength(1000)

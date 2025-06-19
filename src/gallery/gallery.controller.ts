@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 import { CreateGalleryDto } from '../dto/create-gallery.dto';
 import { UpdateGalleryDto } from '../dto/update-gallery.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('gallery')
 @Controller('projects/:projectId/gallery')
@@ -11,6 +12,62 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 @ApiBearerAuth()
 export class GalleryController {
   constructor(private readonly galleryService: GalleryService) {}
+
+  @Post('upload')
+  @ApiOperation({ 
+    summary: 'Subir imagen directamente a la galería',
+    description: 'Sube una imagen directamente a la galería del proyecto. Se verifica el límite de 10 imágenes.'
+  })
+  @ApiParam({
+    name: 'projectId',
+    description: 'ID del proyecto',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Archivo de imagen para la galería',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo de imagen (JPEG, PNG, GIF, WebP)',
+        },
+        title: {
+          type: 'string',
+          description: 'Título de la imagen (opcional)',
+          example: 'Vista frontal del proyecto',
+        },
+        description: {
+          type: 'string',
+          description: 'Descripción de la imagen (opcional)',
+          example: 'Vista frontal del proyecto terminado',
+        },
+      },
+    },
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Imagen subida exitosamente' 
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'No se pueden agregar más de 10 imágenes o archivo no válido' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'Proyecto no encontrado' 
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('projectId') projectId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('title') title?: string,
+    @Body('description') description?: string,
+  ) {
+    return this.galleryService.createWithFile(projectId, file, title, description);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Add an image to project gallery' })
