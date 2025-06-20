@@ -102,6 +102,25 @@ export class GalleryService {
     });
   }
 
+  async findPublicGallery(projectId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
+    }
+
+    if (project.status !== 'PUBLISHED') {
+      throw new NotFoundException(`El proyecto con ID ${projectId} no está publicado`);
+    }
+
+    return this.prisma.gallery.findMany({
+      where: { projectId },
+      orderBy: { order: 'asc' },
+    });
+  }
+
   async findOne(projectId: string, id: string) {
     const gallery = await this.prisma.gallery.findFirst({
       where: {

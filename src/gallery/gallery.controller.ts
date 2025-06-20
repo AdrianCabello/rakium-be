@@ -5,6 +5,7 @@ import { UpdateGalleryDto } from '../dto/update-gallery.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from '../auth/public.decorator';
 
 @ApiTags('gallery')
 @Controller('projects/:projectId/gallery')
@@ -12,6 +13,29 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @ApiBearerAuth()
 export class GalleryController {
   constructor(private readonly galleryService: GalleryService) {}
+
+  @Get('public')
+  @Public()
+  @ApiOperation({ 
+    summary: 'Obtener imágenes de la galería de un proyecto publicado (público)',
+    description: 'Obtiene todas las imágenes de la galería de un proyecto solo si está publicado. Este endpoint es público y no requiere autenticación.'
+  })
+  @ApiParam({
+    name: 'projectId',
+    description: 'ID del proyecto',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Imágenes de la galería obtenidas exitosamente' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'Proyecto no encontrado o no publicado' 
+  })
+  async findPublicGallery(@Param('projectId') projectId: string) {
+    return this.galleryService.findPublicGallery(projectId);
+  }
 
   @Post('upload')
   @ApiOperation({ 
