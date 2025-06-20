@@ -10,7 +10,7 @@ async function bootstrap() {
   // Configuración de Swagger
   const config = new DocumentBuilder()
     .setTitle('Rakium API')
-    .setDescription('API para la gestión de proyectos web de Rakium')
+    .setDescription('API for managing Rakium web projects')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

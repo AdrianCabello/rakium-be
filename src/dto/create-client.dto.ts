@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClientDto {
   @ApiProperty({
-    description: 'Nombre del cliente',
+    description: 'Client name',
     example: 'Empresa XYZ',
   })
   @IsString()
@@ -11,7 +11,7 @@ export class CreateClientDto {
   name: string;
 
   @ApiProperty({
-    description: 'Email del cliente',
+    description: 'Client email',
     example: 'contacto@empresaxyz.com',
   })
   @IsEmail()

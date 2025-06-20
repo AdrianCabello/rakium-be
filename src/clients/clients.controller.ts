@@ -11,40 +11,40 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
-  @ApiOperation({ summary: 'Crear un nuevo cliente' })
-  @ApiResponse({ status: 201, description: 'Cliente creado exitosamente' })
-  @ApiResponse({ status: 400, description: 'Datos inválidos' })
+  @ApiOperation({ summary: 'Create a new client' })
+  @ApiResponse({ status: 201, description: 'Client created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid data' })
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientsService.create(createClientDto);
   }
 
-  @ApiOperation({ summary: 'Obtener todos los clientes' })
-  @ApiResponse({ status: 200, description: 'Lista de clientes obtenida exitosamente' })
+  @ApiOperation({ summary: 'Get all clients' })
+  @ApiResponse({ status: 200, description: 'Client list retrieved successfully' })
   @Get()
   findAll() {
     return this.clientsService.findAll();
   }
 
-  @ApiOperation({ summary: 'Obtener un cliente por ID' })
-  @ApiResponse({ status: 200, description: 'Cliente encontrado' })
-  @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
+  @ApiOperation({ summary: 'Get a client by ID' })
+  @ApiResponse({ status: 200, description: 'Client found' })
+  @ApiResponse({ status: 404, description: 'Client not found' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.clientsService.findOne(id);
   }
 
-  @ApiOperation({ summary: 'Actualizar un cliente' })
-  @ApiResponse({ status: 200, description: 'Cliente actualizado exitosamente' })
-  @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
+  @ApiOperation({ summary: 'Update a client' })
+  @ApiResponse({ status: 200, description: 'Client updated successfully' })
+  @ApiResponse({ status: 404, description: 'Client not found' })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateClientDto: Partial<CreateClientDto>) {
     return this.clientsService.update(id, updateClientDto);
   }
 
-  @ApiOperation({ summary: 'Eliminar un cliente' })
-  @ApiResponse({ status: 200, description: 'Cliente eliminado exitosamente' })
-  @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
+  @ApiOperation({ summary: 'Delete a client' })
+  @ApiResponse({ status: 200, description: 'Client deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Client not found' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.clientsService.remove(id);

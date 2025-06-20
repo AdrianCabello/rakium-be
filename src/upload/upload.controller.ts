@@ -59,65 +59,126 @@ export class UploadController {
     };
   }
 
-  @Post('image')
-  @ApiOperation({ 
-    summary: 'Subir una imagen',
-    description: 'Sube una imagen al almacenamiento de Backblaze B2. Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP) con un tamaño máximo de 10MB.'
+  @Post('file')
+  @ApiOperation({
+    summary: 'Upload a file to Backblaze B2',
+    description: 'Uploads a file to Backblaze B2 storage with optional optimization. Supports images (JPEG, PNG, GIF, WebP) with automatic optimization enabled by default.'
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Archivo de imagen a subir',
+    description: 'File to upload',
     schema: {
       type: 'object',
       properties: {
         file: {
           type: 'string',
           format: 'binary',
-          description: 'Archivo de imagen (JPEG, PNG, GIF, WebP)',
+          description: 'File to upload (images: JPEG, PNG, GIF, WebP)',
         },
         folder: {
           type: 'string',
-          description: 'Carpeta donde guardar la imagen (opcional, por defecto: images)',
+          description: 'Folder where to save the file (optional)',
+          example: 'projects/gallery',
+        },
+        optimize: {
+          type: 'boolean',
+          description: 'Enable image optimization (optional, default: true)',
+          example: true,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully',
+    schema: {
+      type: 'string',
+      example: 'https://bucket-name.s3.us-east-005.backblazeb2.com/folder/timestamp-randomstring.jpg',
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid file type, file too large, or Backblaze B2 not configured',
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('folder') folder?: string,
+    @Body('optimize') optimize?: boolean,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    const optimizeValue = optimize !== undefined ? optimize : true;
+    return this.uploadService.uploadFile(file, folder || 'images', optimizeValue);
+  }
+
+  @Post('image')
+  @ApiOperation({
+    summary: 'Upload and optimize an image',
+    description: 'Uploads an image and automatically optimizes it for web use. Creates multiple variants (thumbnail, medium, large) for better performance.'
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Image file to upload and optimize',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Image file (JPEG, PNG, GIF, WebP)',
+        },
+        folder: {
+          type: 'string',
+          description: 'Folder where to save the image (optional)',
           example: 'projects/gallery',
         },
       },
     },
   })
-  @ApiResponse({ 
-    status: 201, 
-    description: 'Imagen subida exitosamente',
+  @ApiResponse({
+    status: 201,
+    description: 'Image uploaded and optimized successfully',
     schema: {
       type: 'object',
       properties: {
-        url: {
+        original: {
           type: 'string',
-          description: 'URL pública de la imagen subida',
-          example: 'https://bucket-name.s3.us-east-005.backblazeb2.com/images/1234567890-abc123.jpg',
+          description: 'URL of the original image',
+        },
+        thumbnail: {
+          type: 'string',
+          description: 'URL of the thumbnail version (300x200)',
+        },
+        medium: {
+          type: 'string',
+          description: 'URL of the medium version (800x600)',
+        },
+        large: {
+          type: 'string',
+          description: 'URL of the large version (1200x800)',
         },
       },
     },
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Archivo no válido o demasiado grande' 
-  })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImage(
+  async uploadImageWithVariants(
     @UploadedFile() file: Express.Multer.File,
     @Body('folder') folder?: string,
   ) {
     if (!file) {
-      throw new BadRequestException('No se proporcionó ningún archivo');
+      throw new BadRequestException('No file provided');
     }
 
-    const url = await this.uploadService.uploadFile(file, folder || 'images');
-    
-    return {
-      url,
-      filename: file.originalname,
-      size: file.size,
-      mimetype: file.mimetype,
-    };
+    const variants = [
+      { name: 'thumbnail', width: 300, height: 200, quality: 80, format: 'jpeg' as const },
+      { name: 'medium', width: 800, height: 600, quality: 85, format: 'jpeg' as const },
+      { name: 'large', width: 1200, height: 800, quality: 90, format: 'jpeg' as const },
+    ];
+
+    return this.uploadService.uploadWithVariants(file, folder || 'images', variants);
   }
 
   @Post('project/:projectId/gallery')
@@ -185,23 +246,23 @@ export class UploadController {
 
   @Post('image/variants')
   @ApiOperation({ 
-    summary: 'Subir imagen con múltiples variantes optimizadas',
-    description: 'Sube una imagen y crea automáticamente múltiples versiones optimizadas (thumbnail, medium, large).'
+    summary: 'Upload image with multiple optimized variants',
+    description: 'Uploads an image and automatically creates multiple optimized versions (thumbnail, medium, large).'
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Archivo de imagen a subir con variantes',
+    description: 'Image file to upload with variants',
     schema: {
       type: 'object',
       properties: {
         file: {
           type: 'string',
           format: 'binary',
-          description: 'Archivo de imagen (JPEG, PNG, GIF, WebP)',
+          description: 'Image file (JPEG, PNG, GIF, WebP)',
         },
         folder: {
           type: 'string',
-          description: 'Carpeta donde guardar las variantes (opcional)',
+          description: 'Folder where to save the variants (optional)',
           example: 'projects/gallery',
         },
       },
@@ -209,55 +270,44 @@ export class UploadController {
   })
   @ApiResponse({ 
     status: 201, 
-    description: 'Imagen subida con variantes exitosamente',
+    description: 'Image uploaded with variants successfully',
     schema: {
       type: 'object',
       properties: {
         original: {
           type: 'string',
-          description: 'URL de la imagen original',
+          description: 'URL of the original image',
         },
         thumbnail: {
           type: 'string',
-          description: 'URL de la versión thumbnail (300x200)',
+          description: 'URL of the thumbnail version (300x200)',
         },
         medium: {
           type: 'string',
-          description: 'URL de la versión medium (800x600)',
+          description: 'URL of the medium version (800x600)',
         },
         large: {
           type: 'string',
-          description: 'URL de la versión large (1200x800)',
+          description: 'URL of the large version (1200x800)',
         },
       },
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImageWithVariants(
+  async uploadImageWithVariants2(
     @UploadedFile() file: Express.Multer.File,
     @Body('folder') folder?: string,
   ) {
     if (!file) {
-      throw new BadRequestException('No se proporcionó ningún archivo');
+      throw new BadRequestException('No file provided');
     }
 
     const variants = [
       { name: 'thumbnail', width: 300, height: 200, quality: 80, format: 'jpeg' as const },
-      { name: 'medium', width: 800, height: 600, quality: 85, format: 'webp' as const },
-      { name: 'large', width: 1200, height: 800, quality: 90, format: 'webp' as const },
+      { name: 'medium', width: 800, height: 600, quality: 85, format: 'jpeg' as const },
+      { name: 'large', width: 1200, height: 800, quality: 90, format: 'jpeg' as const },
     ];
 
-    const urls = await this.uploadService.uploadWithVariants(file, folder || 'images', variants);
-    
-    return {
-      message: 'Imagen subida con variantes exitosamente',
-      variants: urls,
-      originalSize: file.size,
-      optimizedSizes: {
-        thumbnail: urls.thumbnail ? 'Optimizada' : 'No disponible',
-        medium: urls.medium ? 'Optimizada' : 'No disponible',
-        large: urls.large ? 'Optimizada' : 'No disponible',
-      }
-    };
+    return this.uploadService.uploadWithVariants(file, folder || 'images', variants);
   }
 } 

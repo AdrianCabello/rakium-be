@@ -3,14 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateGalleryDto {
   @ApiProperty({
-    description: 'URL de la imagen',
+    description: 'Image URL',
     example: 'https://ejemplo.com/imagen.jpg',
   })
   @IsString()
   url: string;
 
   @ApiProperty({
-    description: 'Título de la imagen',
+    description: 'Image title',
     example: 'Vista frontal del proyecto',
     required: false,
   })
@@ -19,7 +19,7 @@ export class CreateGalleryDto {
   title?: string;
 
   @ApiProperty({
-    description: 'Descripción de la imagen',
+    description: 'Image description',
     example: 'Vista frontal del proyecto terminado',
     required: false,
   })
@@ -28,7 +28,7 @@ export class CreateGalleryDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Orden de la imagen en la galería',
+    description: 'Image order in gallery',
     example: 1,
     required: false,
   })

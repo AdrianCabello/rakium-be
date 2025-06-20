@@ -12,45 +12,45 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @ApiOperation({ 
-    summary: 'Crear un nuevo proyecto',
-    description: 'Crea un nuevo proyecto con toda la información necesaria incluyendo detalles del cliente, ubicación y características del proyecto.'
+    summary: 'Create a new project',
+    description: 'Creates a new project with all necessary information including client details, location and project characteristics.'
   })
   @ApiResponse({ 
     status: 201, 
-    description: 'Proyecto creado exitosamente',
+    description: 'Project created successfully',
     type: CreateProjectDto
   })
   @ApiResponse({ 
     status: 400, 
-    description: 'Datos inválidos - Verificar que todos los campos requeridos estén presentes y con el formato correcto'
+    description: 'Invalid data - Verify that all required fields are present and in correct format'
   })
   @ApiResponse({ 
     status: 401, 
-    description: 'No autorizado - Se requiere token de autenticación'
+    description: 'Unauthorized - Authentication token required'
   })
   @Post()
   @ApiBody({
     type: CreateProjectDto,
-    description: 'Datos del proyecto a crear. Los campos obligatorios son: name, category y clientId. El resto son opcionales.',
+    description: 'Project data to create. Required fields are: name, category and clientId. The rest are optional.',
     examples: {
       proyectoMinimo: {
-        summary: 'Ejemplo mínimo de proyecto',
+        summary: 'Minimum project example',
         value: {
-          // Campos obligatorios
+          // Required fields
           name: 'Remodelación Estación Norte',
           category: 'ESTACIONES',
           clientId: '123e4567-e89b-12d3-a456-426614174000'
         }
       },
       proyectoCompleto: {
-        summary: 'Ejemplo completo con campos opcionales',
+        summary: 'Complete example with optional fields',
         value: {
-          // Campos obligatorios
+          // Required fields
           name: 'Remodelación Estación Norte',
           category: 'ESTACIONES',
           clientId: '123e4567-e89b-12d3-a456-426614174000',
           
-          // Campos opcionales
+          // Optional fields
           status: 'DRAFT',
           type: 'LANDING',
           description: 'Remodelación completa de estación de servicio en zona norte',
@@ -76,9 +76,9 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto);
   }
 
-  @ApiOperation({ summary: 'Obtener todos los proyectos' })
-  @ApiResponse({ status: 200, description: 'Lista de proyectos obtenida exitosamente' })
-  @ApiQuery({ name: 'clientId', required: false, description: 'Filtrar proyectos por ID de cliente' })
+  @ApiOperation({ summary: 'Get all projects' })
+  @ApiResponse({ status: 200, description: 'Project list retrieved successfully' })
+  @ApiQuery({ name: 'clientId', required: false, description: 'Filter projects by client ID' })
   @Get()
   findAll(@Query('clientId') clientId?: string) {
     if (clientId) {
@@ -87,16 +87,16 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
-  @ApiOperation({ summary: 'Obtener proyectos destacados' })
-  @ApiResponse({ status: 200, description: 'Lista de proyectos destacados obtenida exitosamente' })
+  @ApiOperation({ summary: 'Get featured projects' })
+  @ApiResponse({ status: 200, description: 'Featured project list retrieved successfully' })
   @Get('featured')
   findFeatured() {
     return this.projectsService.findFeatured();
   }
 
-  @ApiOperation({ summary: 'Obtener un proyecto por ID' })
-  @ApiResponse({ status: 200, description: 'Proyecto encontrado' })
-  @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
+  @ApiOperation({ summary: 'Get a project by ID' })
+  @ApiResponse({ status: 200, description: 'Project found' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.projectsService.findOne(id);
@@ -105,33 +105,33 @@ export class ProjectsController {
   @Get(':id/published')
   @Public()
   @ApiOperation({ 
-    summary: 'Obtener un proyecto publicado por ID (público)',
-    description: 'Obtiene un proyecto específico solo si está en estado PUBLISHED. Este endpoint es público y no requiere autenticación.'
+    summary: 'Get a published project by ID (public)',
+    description: 'Gets a specific project only if it is in PUBLISHED status. This endpoint is public and does not require authentication.'
   })
-  @ApiParam({ name: 'id', description: 'ID del proyecto' })
+  @ApiParam({ name: 'id', description: 'Project ID' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Proyecto publicado encontrado' 
+    description: 'Published project found' 
   })
   @ApiResponse({ 
     status: 404, 
-    description: 'Proyecto no encontrado o no publicado' 
+    description: 'Project not found or not published' 
   })
   async findPublishedProject(@Param('id') id: string) {
     return this.projectsService.findPublishedProject(id);
   }
 
-  @ApiOperation({ summary: 'Actualizar un proyecto' })
-  @ApiResponse({ status: 200, description: 'Proyecto actualizado exitosamente' })
-  @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiResponse({ status: 200, description: 'Project updated successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
     return this.projectsService.update(id, updateProjectDto);
   }
 
-  @ApiOperation({ summary: 'Eliminar un proyecto' })
-  @ApiResponse({ status: 200, description: 'Proyecto eliminado exitosamente' })
-  @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
+  @ApiOperation({ summary: 'Delete a project' })
+  @ApiResponse({ status: 200, description: 'Project deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
@@ -139,9 +139,9 @@ export class ProjectsController {
 
   @Get('client/:clientId')
   @Public()
-  @ApiOperation({ summary: 'Obtener proyectos de un cliente' })
-  @ApiParam({ name: 'clientId', description: 'ID del cliente' })
-  @ApiResponse({ status: 200, description: 'Lista de proyectos del cliente' })
+  @ApiOperation({ summary: 'Get projects by client' })
+  @ApiParam({ name: 'clientId', description: 'Client ID' })
+  @ApiResponse({ status: 200, description: 'Client project list' })
   async findAllByClientId(@Param('clientId') clientId: string) {
     return this.projectsService.findAllByClientId(clientId);
   }

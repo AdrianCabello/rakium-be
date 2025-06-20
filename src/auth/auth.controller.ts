@@ -8,10 +8,10 @@ import { LoginDto } from '../dto/login.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({ summary: 'Iniciar sesión' })
+  @ApiOperation({ summary: 'Login' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Login exitoso',
+    description: 'Successful login',
     schema: {
       type: 'object',
       properties: {
@@ -31,27 +31,27 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto.email, loginDto.password);
   }
 
   @Get('me')
-  @ApiOperation({ summary: 'Obtener información del usuario autenticado' })
-  @ApiResponse({ status: 200, description: 'Información del usuario' })
-  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiOperation({ summary: 'Get authenticated user information' })
+  @ApiResponse({ status: 200, description: 'User information' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getProfile(@Request() req) {
     return req.user;
   }
 
   @Get('test-auth')
-  @ApiOperation({ summary: 'Endpoint de prueba para verificar autenticación' })
-  @ApiResponse({ status: 200, description: 'Autenticación exitosa' })
-  @ApiResponse({ status: 401, description: 'No autorizado' })
+  @ApiOperation({ summary: 'Test endpoint to verify authentication' })
+  @ApiResponse({ status: 200, description: 'Authentication successful' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   testAuth(@Request() req) {
     return {
-      message: 'Autenticación exitosa',
+      message: 'Authentication successful',
       user: req.user,
       timestamp: new Date().toISOString()
     };

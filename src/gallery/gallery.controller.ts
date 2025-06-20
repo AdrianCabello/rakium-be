@@ -17,21 +17,21 @@ export class GalleryController {
   @Get('public')
   @Public()
   @ApiOperation({ 
-    summary: 'Obtener imágenes de la galería de un proyecto publicado (público)',
-    description: 'Obtiene todas las imágenes de la galería de un proyecto solo si está publicado. Este endpoint es público y no requiere autenticación.'
+    summary: 'Get gallery images from a published project (public)',
+    description: 'Gets all gallery images from a project only if it is published. This endpoint is public and does not require authentication.'
   })
   @ApiParam({
     name: 'projectId',
-    description: 'ID del proyecto',
+    description: 'Project ID',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({ 
     status: 200, 
-    description: 'Imágenes de la galería obtenidas exitosamente' 
+    description: 'Gallery images retrieved successfully' 
   })
   @ApiResponse({ 
     status: 404, 
-    description: 'Proyecto no encontrado o no publicado' 
+    description: 'Project not found or not published' 
   })
   async findPublicGallery(@Param('projectId') projectId: string) {
     return this.galleryService.findPublicGallery(projectId);
@@ -39,33 +39,33 @@ export class GalleryController {
 
   @Post('upload')
   @ApiOperation({ 
-    summary: 'Subir imagen directamente a la galería',
-    description: 'Sube una imagen directamente a la galería del proyecto. Se verifica el límite de 10 imágenes.'
+    summary: 'Upload image directly to gallery',
+    description: 'Uploads an image directly to the project gallery. The 10 image limit is verified.'
   })
   @ApiParam({
     name: 'projectId',
-    description: 'ID del proyecto',
+    description: 'Project ID',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Archivo de imagen para la galería',
+    description: 'Image file for gallery',
     schema: {
       type: 'object',
       properties: {
         file: {
           type: 'string',
           format: 'binary',
-          description: 'Archivo de imagen (JPEG, PNG, GIF, WebP)',
+          description: 'Image file (JPEG, PNG, GIF, WebP)',
         },
         title: {
           type: 'string',
-          description: 'Título de la imagen (opcional)',
+          description: 'Image title (optional)',
           example: 'Vista frontal del proyecto',
         },
         description: {
           type: 'string',
-          description: 'Descripción de la imagen (opcional)',
+          description: 'Image description (optional)',
           example: 'Vista frontal del proyecto terminado',
         },
       },
@@ -73,15 +73,15 @@ export class GalleryController {
   })
   @ApiResponse({ 
     status: 201, 
-    description: 'Imagen subida exitosamente' 
+    description: 'Image uploaded successfully' 
   })
   @ApiResponse({ 
     status: 400, 
-    description: 'No se pueden agregar más de 10 imágenes o archivo no válido' 
+    description: 'Cannot add more than 10 images or invalid file' 
   })
   @ApiResponse({ 
     status: 404, 
-    description: 'Proyecto no encontrado' 
+    description: 'Project not found' 
   })
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
@@ -96,10 +96,7 @@ export class GalleryController {
   @Post()
   @ApiOperation({ summary: 'Add an image to project gallery' })
   @ApiResponse({ status: 201, description: 'Image added successfully' })
-  create(
-    @Param('projectId') projectId: string,
-    @Body() createGalleryDto: CreateGalleryDto,
-  ) {
+  create(@Param('projectId') projectId: string, @Body() createGalleryDto: CreateGalleryDto) {
     return this.galleryService.create(projectId, createGalleryDto);
   }
 
@@ -120,11 +117,7 @@ export class GalleryController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update an image in project gallery' })
   @ApiResponse({ status: 200, description: 'Image updated successfully' })
-  update(
-    @Param('projectId') projectId: string,
-    @Param('id') id: string,
-    @Body() updateGalleryDto: UpdateGalleryDto,
-  ) {
+  update(@Param('projectId') projectId: string, @Param('id') id: string, @Body() updateGalleryDto: UpdateGalleryDto) {
     return this.galleryService.update(projectId, id, updateGalleryDto);
   }
 
@@ -138,18 +131,15 @@ export class GalleryController {
   @Post('reorder')
   @ApiOperation({ summary: 'Reorder images in project gallery' })
   @ApiResponse({ status: 200, description: 'Images reordered successfully' })
-  reorder(
-    @Param('projectId') projectId: string,
-    @Body('galleryIds') galleryIds: string[],
-  ) {
+  reorder(@Param('projectId') projectId: string, @Body() galleryIds: string[]) {
     return this.galleryService.reorder(projectId, galleryIds);
   }
 
   @Get('public/:projectId')
   @Public()
-  @ApiOperation({ summary: 'Obtener galería pública de un proyecto' })
-  @ApiResponse({ status: 200, description: 'Galería del proyecto' })
-  @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
+  @ApiOperation({ summary: 'Get public gallery of a project' })
+  @ApiResponse({ status: 200, description: 'Project gallery' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
   async getPublicGallery(@Param('projectId') projectId: string) {
     return this.galleryService.findAll(projectId);
   }

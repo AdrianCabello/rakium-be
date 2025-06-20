@@ -3,7 +3,7 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({
-    description: 'Email del usuario',
+    description: 'User email',
     example: 'admin@rakium.com',
   })
   @IsEmail()
@@ -11,7 +11,7 @@ export class LoginDto {
   email: string;
 
   @ApiProperty({
-    description: 'Contraseña del usuario',
+    description: 'User password',
     example: 'admin123',
   })
   @IsString()

@@ -4,7 +4,7 @@ import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
 
 export class UpdateProjectDto {
   @ApiProperty({
-    description: 'Nombre del proyecto',
+    description: 'Project name',
     example: 'Remodelación de estación de servicio',
     required: false,
   })
@@ -13,7 +13,7 @@ export class UpdateProjectDto {
   name?: string;
 
   @ApiProperty({
-    description: 'Tipo del proyecto',
+    description: 'Project type',
     enum: ProjectType,
     example: ProjectType.LANDING,
     required: false,
@@ -23,7 +23,7 @@ export class UpdateProjectDto {
   type?: ProjectType;
 
   @ApiProperty({
-    description: 'Estado del proyecto',
+    description: 'Project status',
     enum: ProjectStatus,
     example: ProjectStatus.DRAFT,
     required: false,
@@ -33,7 +33,7 @@ export class UpdateProjectDto {
   status?: ProjectStatus;
 
   @ApiProperty({
-    description: 'Categoría del proyecto',
+    description: 'Project category',
     enum: ProjectCategory,
     example: ProjectCategory.ESTACIONES,
     required: false,
@@ -43,7 +43,7 @@ export class UpdateProjectDto {
   category?: ProjectCategory;
 
   @ApiProperty({
-    description: 'Descripción corta del proyecto',
+    description: 'Short project description',
     example: 'Remodelación completa de estación de servicio en zona norte',
     required: false,
   })
@@ -52,7 +52,7 @@ export class UpdateProjectDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Descripción detallada del proyecto',
+    description: 'Detailed project description',
     example: 'Proyecto de remodelación integral...',
     required: false,
   })
@@ -61,7 +61,7 @@ export class UpdateProjectDto {
   longDescription?: string;
 
   @ApiProperty({
-    description: 'URL de la imagen antes del proyecto',
+    description: 'URL of the before project image',
     example: 'https://ejemplo.com/antes.jpg',
     required: false,
   })
@@ -70,7 +70,7 @@ export class UpdateProjectDto {
   imageBefore?: string;
 
   @ApiProperty({
-    description: 'URL de la imagen después del proyecto',
+    description: 'URL of the after project image',
     example: 'https://ejemplo.com/despues.jpg',
     required: false,
   })
@@ -79,7 +79,7 @@ export class UpdateProjectDto {
   imageAfter?: string;
 
   @ApiProperty({
-    description: 'Latitud de la ubicación del proyecto',
+    description: 'Project latitude',
     example: 19.4326,
     required: false,
   })
@@ -90,7 +90,7 @@ export class UpdateProjectDto {
   latitude?: number;
 
   @ApiProperty({
-    description: 'Longitud de la ubicación del proyecto',
+    description: 'Project longitude',
     example: -99.1332,
     required: false,
   })
@@ -101,7 +101,7 @@ export class UpdateProjectDto {
   longitude?: number;
 
   @ApiProperty({
-    description: 'Dirección formateada del proyecto',
+    description: 'Project address',
     example: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
     required: false,
   })
@@ -110,7 +110,7 @@ export class UpdateProjectDto {
   address?: string;
 
   @ApiProperty({
-    description: 'País del proyecto',
+    description: 'Project country',
     example: 'México',
     required: false,
   })
@@ -119,7 +119,7 @@ export class UpdateProjectDto {
   country?: string;
 
   @ApiProperty({
-    description: 'Estado/Provincia del proyecto',
+    description: 'Project state',
     example: 'Ciudad de México',
     required: false,
   })
@@ -128,7 +128,7 @@ export class UpdateProjectDto {
   state?: string;
 
   @ApiProperty({
-    description: 'Ciudad del proyecto',
+    description: 'Project city',
     example: 'Benito Juárez',
     required: false,
   })
@@ -137,7 +137,7 @@ export class UpdateProjectDto {
   city?: string;
 
   @ApiProperty({
-    description: 'Área del proyecto',
+    description: 'Project area',
     example: '500m²',
     required: false,
   })
@@ -146,7 +146,7 @@ export class UpdateProjectDto {
   area?: string;
 
   @ApiProperty({
-    description: 'Duración del proyecto',
+    description: 'Project duration',
     example: '3 meses',
     required: false,
   })
@@ -155,7 +155,7 @@ export class UpdateProjectDto {
   duration?: string;
 
   @ApiProperty({
-    description: 'Fecha del proyecto',
+    description: 'Project date',
     example: '2024-03-15',
     required: false,
   })
@@ -165,54 +165,7 @@ export class UpdateProjectDto {
   date?: string;
 
   @ApiProperty({
-    description: 'Fecha de inicio del proyecto (formato ISO 8601)',
-    example: '2024-01-01T00:00:00.000Z',
-    required: false,
-  })
-  @IsDateString()
-  @IsOptional()
-  startDate?: string;
-
-  @ApiProperty({
-    description: 'Fecha de finalización del proyecto (formato ISO 8601)',
-    example: '2024-12-31T23:59:59.999Z',
-    required: false,
-  })
-  @IsDateString()
-  @IsOptional()
-  endDate?: string;
-
-  @ApiProperty({
-    description: 'ID del cliente al que pertenece el proyecto',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  clientId?: string;
-
-  @ApiProperty({
-    description: 'Desafío del proyecto',
-    example: 'Mantener operaciones durante la remodelación',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(1000)
-  challenge?: string;
-
-  @ApiProperty({
-    description: 'Solución implementada',
-    example: 'Trabajo por fases y horarios especiales',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(1000)
-  solution?: string;
-
-  @ApiProperty({
-    description: 'URL del proyecto',
+    description: 'Project URL',
     example: 'https://ejemplo.com/proyecto',
     required: false,
   })
@@ -222,7 +175,54 @@ export class UpdateProjectDto {
   url?: string;
 
   @ApiProperty({
-    description: 'ID del usuario creador',
+    description: 'Project challenge',
+    example: 'Mantener operaciones durante la remodelación',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  challenge?: string;
+
+  @ApiProperty({
+    description: 'Project solution',
+    example: 'Trabajo por fases y horarios especiales',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  solution?: string;
+
+  @ApiProperty({
+    description: 'Project start date',
+    example: '2024-01-01T00:00:00.000Z',
+    required: false,
+  })
+  @IsDateString()
+  @IsOptional()
+  startDate?: string;
+
+  @ApiProperty({
+    description: 'Project end date',
+    example: '2024-12-31T23:59:59.999Z',
+    required: false,
+  })
+  @IsDateString()
+  @IsOptional()
+  endDate?: string;
+
+  @ApiProperty({
+    description: 'ID of the client to which the project belongs',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  clientId?: string;
+
+  @ApiProperty({
+    description: 'ID of the user who created the project',
     example: '123e4567-e89b-12d3-a456-426614174000',
     required: false,
   })
