@@ -102,6 +102,25 @@ export class ProjectsController {
     return this.projectsService.findOne(id);
   }
 
+  @Get(':id/published')
+  @Public()
+  @ApiOperation({ 
+    summary: 'Obtener un proyecto publicado por ID (público)',
+    description: 'Obtiene un proyecto específico solo si está en estado PUBLISHED. Este endpoint es público y no requiere autenticación.'
+  })
+  @ApiParam({ name: 'id', description: 'ID del proyecto' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Proyecto publicado encontrado' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'Proyecto no encontrado o no publicado' 
+  })
+  async findPublishedProject(@Param('id') id: string) {
+    return this.projectsService.findPublishedProject(id);
+  }
+
   @ApiOperation({ summary: 'Actualizar un proyecto' })
   @ApiResponse({ status: 200, description: 'Proyecto actualizado exitosamente' })
   @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })

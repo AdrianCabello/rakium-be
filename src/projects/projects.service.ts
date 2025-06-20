@@ -77,6 +77,36 @@ export class ProjectsService {
     });
   }
 
+  async findPublishedProject(id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        gallery: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${id}`);
+    }
+
+    if (project.status !== 'PUBLISHED') {
+      throw new NotFoundException(`El proyecto con ID ${id} no está publicado`);
+    }
+
+    return project;
+  }
+
   async findByClient(clientId: string) {
     return this.prisma.project.findMany({
       where: { clientId },
