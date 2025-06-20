@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateGalleryDto } from '../dto/create-gallery.dto';
 import { UpdateGalleryDto } from '../dto/update-gallery.dto';
+import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
+import { getPaginationParams, createPaginatedResponse } from '../utils/pagination.util';
 import { UploadService } from '../upload/upload.service';
 
 @Injectable()
@@ -87,7 +89,7 @@ export class GalleryService {
     });
   }
 
-  async findAll(projectId: string) {
+  async findAll(projectId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
@@ -96,15 +98,24 @@ export class GalleryService {
       throw new NotFoundException(`Project with ID ${projectId} not found`);
     }
 
-    const gallery = await this.prisma.gallery.findMany({
-      where: { projectId },
-      orderBy: { order: 'asc' },
-    });
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
 
-    return gallery;
+    const [gallery, total] = await Promise.all([
+      this.prisma.gallery.findMany({
+        where: { projectId },
+        orderBy: { order: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.gallery.count({
+        where: { projectId },
+      }),
+    ]);
+
+    return createPaginatedResponse(gallery, total, page, limit);
   }
 
-  async findPublicGallery(projectId: string) {
+  async findPublicGallery(projectId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
@@ -117,13 +128,32 @@ export class GalleryService {
       throw new NotFoundException(`El proyecto con ID ${projectId} no está publicado`);
     }
 
-    return this.prisma.gallery.findMany({
-      where: { projectId },
-      orderBy: { order: 'asc' },
-    });
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+
+    const [gallery, total] = await Promise.all([
+      this.prisma.gallery.findMany({
+        where: { projectId },
+        orderBy: { order: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.gallery.count({
+        where: { projectId },
+      }),
+    ]);
+
+    return createPaginatedResponse(gallery, total, page, limit);
   }
 
   async findOne(projectId: string, id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${projectId} not found`);
+    }
+
     const gallery = await this.prisma.gallery.findFirst({
       where: {
         id,
@@ -132,13 +162,21 @@ export class GalleryService {
     });
 
     if (!gallery) {
-      throw new NotFoundException(`Gallery with ID ${id} not found in project ${projectId}`);
+      throw new NotFoundException(`Gallery item with ID ${id} not found in project ${projectId}`);
     }
 
     return gallery;
   }
 
   async update(projectId: string, id: string, updateGalleryDto: UpdateGalleryDto) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${projectId} not found`);
+    }
+
     const gallery = await this.prisma.gallery.findFirst({
       where: {
         id,
@@ -147,7 +185,7 @@ export class GalleryService {
     });
 
     if (!gallery) {
-      throw new NotFoundException(`Gallery with ID ${id} not found in project ${projectId}`);
+      throw new NotFoundException(`Gallery item with ID ${id} not found in project ${projectId}`);
     }
 
     return this.prisma.gallery.update({
@@ -157,6 +195,14 @@ export class GalleryService {
   }
 
   async remove(projectId: string, id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${projectId} not found`);
+    }
+
     const gallery = await this.prisma.gallery.findFirst({
       where: {
         id,
@@ -165,7 +211,17 @@ export class GalleryService {
     });
 
     if (!gallery) {
-      throw new NotFoundException(`Gallery with ID ${id} not found in project ${projectId}`);
+      throw new NotFoundException(`Gallery item with ID ${id} not found in project ${projectId}`);
+    }
+
+    // Eliminar archivo de Backblaze B2 si existe
+    if (gallery.url) {
+      try {
+        await this.uploadService.deleteFile(gallery.url);
+      } catch (error) {
+        // Log error but don't fail the operation
+        console.error('Error deleting file from Backblaze:', error);
+      }
     }
 
     return this.prisma.gallery.delete({

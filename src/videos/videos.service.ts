@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVideoDto } from '../dto/create-video.dto';
 import { UpdateVideoDto } from '../dto/update-video.dto';
+import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
+import { getPaginationParams, createPaginatedResponse } from '../utils/pagination.util';
 
 @Injectable()
 export class VideosService {
@@ -25,6 +27,12 @@ export class VideosService {
       throw new BadRequestException('No se pueden agregar más de 10 videos al proyecto');
     }
 
+    // Validar URL de YouTube
+    const youtubeUrlPattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[a-zA-Z0-9_-]{11}(.*)?$/;
+    if (!youtubeUrlPattern.test(createVideoDto.youtubeUrl)) {
+      throw new BadRequestException('La URL debe ser una URL válida de YouTube');
+    }
+
     // Obtener el último orden
     const lastOrder = project.videos.length > 0 
       ? Math.max(...project.videos.map(video => video.order))
@@ -39,7 +47,7 @@ export class VideosService {
     });
   }
 
-  async findAll(projectId: string) {
+  async findAll(projectId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
@@ -48,13 +56,24 @@ export class VideosService {
       throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
     }
 
-    return this.prisma.video.findMany({
-      where: { projectId },
-      orderBy: { order: 'asc' },
-    });
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+
+    const [videos, total] = await Promise.all([
+      this.prisma.video.findMany({
+        where: { projectId },
+        orderBy: { order: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.video.count({
+        where: { projectId },
+      }),
+    ]);
+
+    return createPaginatedResponse(videos, total, page, limit);
   }
 
-  async findPublicVideos(projectId: string) {
+  async findPublicVideos(projectId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
@@ -67,13 +86,32 @@ export class VideosService {
       throw new NotFoundException(`El proyecto con ID ${projectId} no está publicado`);
     }
 
-    return this.prisma.video.findMany({
-      where: { projectId },
-      orderBy: { order: 'asc' },
-    });
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+
+    const [videos, total] = await Promise.all([
+      this.prisma.video.findMany({
+        where: { projectId },
+        orderBy: { order: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.video.count({
+        where: { projectId },
+      }),
+    ]);
+
+    return createPaginatedResponse(videos, total, page, limit);
   }
 
   async findOne(projectId: string, id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
+    }
+
     const video = await this.prisma.video.findFirst({
       where: {
         id,
@@ -82,13 +120,21 @@ export class VideosService {
     });
 
     if (!video) {
-      throw new NotFoundException(`Video con ID ${id} no encontrado en el proyecto ${projectId}`);
+      throw new NotFoundException(`Video with ID ${id} not found in project ${projectId}`);
     }
 
     return video;
   }
 
   async update(projectId: string, id: string, updateVideoDto: UpdateVideoDto) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
+    }
+
     const video = await this.prisma.video.findFirst({
       where: {
         id,
@@ -97,7 +143,15 @@ export class VideosService {
     });
 
     if (!video) {
-      throw new NotFoundException(`Video con ID ${id} no encontrado en el proyecto ${projectId}`);
+      throw new NotFoundException(`Video with ID ${id} not found in project ${projectId}`);
+    }
+
+    // Validar URL de YouTube si se está actualizando
+    if (updateVideoDto.youtubeUrl) {
+      const youtubeUrlPattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[a-zA-Z0-9_-]{11}(.*)?$/;
+      if (!youtubeUrlPattern.test(updateVideoDto.youtubeUrl)) {
+        throw new BadRequestException('La URL debe ser una URL válida de YouTube');
+      }
     }
 
     return this.prisma.video.update({
@@ -107,6 +161,14 @@ export class VideosService {
   }
 
   async remove(projectId: string, id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
+    }
+
     const video = await this.prisma.video.findFirst({
       where: {
         id,
@@ -115,7 +177,7 @@ export class VideosService {
     });
 
     if (!video) {
-      throw new NotFoundException(`Video con ID ${id} no encontrado en el proyecto ${projectId}`);
+      throw new NotFoundException(`Video with ID ${id} not found in project ${projectId}`);
     }
 
     return this.prisma.video.delete({
@@ -141,7 +203,7 @@ export class VideosService {
     });
 
     if (videos.length !== videoIds.length) {
-      throw new NotFoundException('Algunos videos no se encontraron en el proyecto');
+      throw new NotFoundException('Some videos not found in the project');
     }
 
     // Actualizar el orden de cada video

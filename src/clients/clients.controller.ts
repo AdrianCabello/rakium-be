@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from '../dto/create-client.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { PaginationDto } from '../dto/pagination.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('clients')
@@ -19,11 +20,14 @@ export class ClientsController {
     return this.clientsService.create(createClientDto);
   }
 
-  @ApiOperation({ summary: 'Get all clients' })
-  @ApiResponse({ status: 200, description: 'Client list retrieved successfully' })
+  @ApiOperation({ summary: 'Get all clients with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated client list retrieved successfully' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'empresa' })
   @Get()
-  findAll() {
-    return this.clientsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.clientsService.findAll(paginationDto);
   }
 
   @ApiOperation({ summary: 'Get a client by ID' })

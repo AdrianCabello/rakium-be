@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
+import { PaginationDto } from '../dto/pagination.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 
@@ -76,22 +77,28 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto);
   }
 
-  @ApiOperation({ summary: 'Get all projects' })
-  @ApiResponse({ status: 200, description: 'Project list retrieved successfully' })
+  @ApiOperation({ summary: 'Get all projects with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated project list retrieved successfully' })
   @ApiQuery({ name: 'clientId', required: false, description: 'Filter projects by client ID' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'estación' })
   @Get()
-  findAll(@Query('clientId') clientId?: string) {
+  findAll(@Query() paginationDto: PaginationDto, @Query('clientId') clientId?: string) {
     if (clientId) {
-      return this.projectsService.findByClient(clientId);
+      return this.projectsService.findByClient(clientId, paginationDto);
     }
-    return this.projectsService.findAll();
+    return this.projectsService.findAll(paginationDto);
   }
 
-  @ApiOperation({ summary: 'Get featured projects' })
-  @ApiResponse({ status: 200, description: 'Featured project list retrieved successfully' })
+  @ApiOperation({ summary: 'Get featured projects with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated featured project list retrieved successfully' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'estación' })
   @Get('featured')
-  findFeatured() {
-    return this.projectsService.findFeatured();
+  findFeatured(@Query() paginationDto: PaginationDto) {
+    return this.projectsService.findFeatured(paginationDto);
   }
 
   @ApiOperation({ summary: 'Get a project by ID' })
@@ -139,10 +146,13 @@ export class ProjectsController {
 
   @Get('client/:clientId')
   @Public()
-  @ApiOperation({ summary: 'Get projects by client' })
+  @ApiOperation({ summary: 'Get projects by client with pagination' })
   @ApiParam({ name: 'clientId', description: 'Client ID' })
-  @ApiResponse({ status: 200, description: 'Client project list' })
-  async findAllByClientId(@Param('clientId') clientId: string) {
-    return this.projectsService.findAllByClientId(clientId);
+  @ApiResponse({ status: 200, description: 'Paginated client project list' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'estación' })
+  async findAllByClientId(@Param('clientId') clientId: string, @Query() paginationDto: PaginationDto) {
+    return this.projectsService.findAllByClientId(clientId, paginationDto);
   }
 } 

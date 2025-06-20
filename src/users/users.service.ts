@@ -1,6 +1,8 @@
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
+import { getPaginationParams, createPaginatedResponse, buildUserSearchFilter } from '../utils/pagination.util';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -13,27 +15,71 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('Email already in use');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const { password, ...userData } = createUserDto;
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(createUserDto.password, saltRounds);
 
     return this.prisma.user.create({
       data: {
-        ...userData,
-        passwordHash: hashedPassword,
+        email: createUserDto.email,
+        passwordHash,
+        role: createUserDto.role,
+        clientId: createUserDto.clientId,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        clientId: true,
+        createdAt: true,
+        updatedAt: true,
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
   }
 
-  async findAll() {
-    return this.prisma.user.findMany({
-      include: {
-        client: true,
-        projects: true,
-      },
-    });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+    const searchFilter = buildUserSearchFilter(paginationDto.search);
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where: searchFilter,
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          clientId: true,
+          createdAt: true,
+          updatedAt: true,
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.user.count({
+        where: searchFilter,
+      }),
+    ]);
+
+    return createPaginatedResponse(users, total, page, limit);
   }
 
   async findOne(id: string) {

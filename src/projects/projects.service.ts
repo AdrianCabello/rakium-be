@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
+import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
+import { getPaginationParams, createPaginatedResponse, buildSearchFilter } from '../utils/pagination.util';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -62,16 +64,29 @@ export class ProjectsService {
     });
   }
 
-  async findAll() {
-    return this.prisma.project.findMany({
-      include: {
-        client: true,
-        gallery: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto.search);
+
+    const [projects, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where: searchFilter,
+        include: {
+          client: true,
+          gallery: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.project.count({
+        where: searchFilter,
+      }),
+    ]);
+
+    return createPaginatedResponse(projects, total, page, limit);
   }
 
   async findOne(id: string) {
@@ -128,43 +143,77 @@ export class ProjectsService {
     return project;
   }
 
-  async findByClient(clientId: string) {
-    return this.prisma.project.findMany({
-      where: { clientId },
-      include: {
-        client: true,
-        gallery: {
-          orderBy: {
-            order: 'asc',
+  async findByClient(clientId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto.search);
+
+    const [projects, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where: {
+          clientId,
+          ...searchFilter,
+        },
+        include: {
+          client: true,
+          gallery: {
+            orderBy: {
+              order: 'asc',
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.project.count({
+        where: {
+          clientId,
+          ...searchFilter,
+        },
+      }),
+    ]);
+
+    return createPaginatedResponse(projects, total, page, limit);
   }
 
-  async findFeatured() {
-    return this.prisma.project.findMany({
-      where: { 
-        status: 'PUBLISHED'
-      },
-      include: {
-        client: true,
-        gallery: {
-          orderBy: {
-            order: 'asc',
+  async findFeatured(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto.search);
+
+    const [projects, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where: { 
+          status: 'PUBLISHED',
+          ...searchFilter,
+        },
+        include: {
+          client: true,
+          gallery: {
+            orderBy: {
+              order: 'asc',
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.project.count({
+        where: { 
+          status: 'PUBLISHED',
+          ...searchFilter,
+        },
+      }),
+    ]);
+
+    return createPaginatedResponse(projects, total, page, limit);
   }
 
-  async findAllByClientId(clientId: string) {
+  async findAllByClientId(clientId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
     // Verificar que el cliente existe
     const client = await this.prisma.client.findUnique({
       where: { id: clientId },
@@ -174,32 +223,49 @@ export class ProjectsService {
       throw new NotFoundException(`No se encontró ningún cliente con el ID: ${clientId}`);
     }
 
-    return this.prisma.project.findMany({
-      where: { 
-        clientId,
-        status: 'PUBLISHED'
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto.search);
+
+    const [projects, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where: { 
+          clientId,
+          status: 'PUBLISHED',
+          ...searchFilter,
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
+          gallery: {
+            orderBy: {
+              order: 'asc'
+            }
           }
         },
-        gallery: {
-          orderBy: {
-            order: 'asc'
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.project.count({
+        where: { 
+          clientId,
+          status: 'PUBLISHED',
+          ...searchFilter,
+        },
+      }),
+    ]);
+
+    return createPaginatedResponse(projects, total, page, limit);
   }
 
-  async findPublicByClient(clientId: string) {
+  async findPublicByClient(clientId: string, paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
     // Verificar que el cliente existe
     const client = await this.prisma.client.findUnique({
       where: { id: clientId },
@@ -209,29 +275,46 @@ export class ProjectsService {
       throw new NotFoundException(`No se encontró ningún cliente con el ID: ${clientId}`);
     }
 
-    return this.prisma.project.findMany({
-      where: { 
-        clientId,
-        status: 'PUBLISHED'
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true
+    const { skip, take, page, limit } = getPaginationParams(paginationDto);
+    const searchFilter = buildSearchFilter(paginationDto.search);
+
+    const [projects, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where: { 
+          clientId,
+          status: 'PUBLISHED',
+          ...searchFilter,
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
+          gallery: {
+            orderBy: {
+              order: 'asc'
+            }
           }
         },
-        gallery: {
-          orderBy: {
-            order: 'asc'
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.project.count({
+        where: { 
+          clientId,
+          status: 'PUBLISHED',
+          ...searchFilter,
+        },
+      }),
+    ]);
+
+    return createPaginatedResponse(projects, total, page, limit);
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {

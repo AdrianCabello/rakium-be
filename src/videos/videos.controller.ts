@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { VideosService } from './videos.service';
 import { CreateVideoDto } from '../dto/create-video.dto';
 import { UpdateVideoDto } from '../dto/update-video.dto';
+import { PaginationDto } from '../dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 
 @ApiTags('videos')
@@ -12,29 +13,6 @@ import { Public } from '../auth/public.decorator';
 @ApiBearerAuth()
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
-
-  @Get('public')
-  @Public()
-  @ApiOperation({ 
-    summary: 'Obtener videos de un proyecto publicado (público)',
-    description: 'Obtiene todos los videos de un proyecto solo si está publicado. Este endpoint es público y no requiere autenticación.'
-  })
-  @ApiParam({
-    name: 'projectId',
-    description: 'ID del proyecto',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Videos obtenidos exitosamente' 
-  })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Proyecto no encontrado o no publicado' 
-  })
-  async findPublicVideos(@Param('projectId') projectId: string) {
-    return this.videosService.findPublicVideos(projectId);
-  }
 
   @Post()
   @ApiOperation({
@@ -92,10 +70,22 @@ export class VideosController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all videos from project' })
-  @ApiResponse({ status: 200, description: 'Videos retrieved successfully' })
-  findAll(@Param('projectId') projectId: string) {
-    return this.videosService.findAll(projectId);
+  @ApiOperation({ summary: 'Get all videos from project with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated videos retrieved successfully' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  findAll(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
+    return this.videosService.findAll(projectId, paginationDto);
+  }
+
+  @Get('public')
+  @Public()
+  @ApiOperation({ summary: 'Get public videos from project with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated public videos retrieved successfully' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  findPublicVideos(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
+    return this.videosService.findPublicVideos(projectId, paginationDto);
   }
 
   @Get(':id')

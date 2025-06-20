@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 import { CreateGalleryDto } from '../dto/create-gallery.dto';
 import { UpdateGalleryDto } from '../dto/update-gallery.dto';
+import { PaginationDto } from '../dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from '../auth/public.decorator';
 
@@ -17,24 +18,26 @@ export class GalleryController {
   @Get('public')
   @Public()
   @ApiOperation({ 
-    summary: 'Get gallery images from a published project (public)',
-    description: 'Gets all gallery images from a project only if it is published. This endpoint is public and does not require authentication.'
+    summary: 'Get gallery images from a published project with pagination (public)',
+    description: 'Gets gallery images from a project only if it is published. This endpoint is public and does not require authentication.'
   })
   @ApiParam({
     name: 'projectId',
     description: 'Project ID',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
   @ApiResponse({ 
     status: 200, 
-    description: 'Gallery images retrieved successfully' 
+    description: 'Paginated gallery images retrieved successfully' 
   })
   @ApiResponse({ 
     status: 404, 
     description: 'Project not found or not published' 
   })
-  async findPublicGallery(@Param('projectId') projectId: string) {
-    return this.galleryService.findPublicGallery(projectId);
+  async findPublicGallery(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
+    return this.galleryService.findPublicGallery(projectId, paginationDto);
   }
 
   @Post('upload')
@@ -101,10 +104,12 @@ export class GalleryController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all images from project gallery' })
-  @ApiResponse({ status: 200, description: 'Return all images' })
-  findAll(@Param('projectId') projectId: string) {
-    return this.galleryService.findAll(projectId);
+  @ApiOperation({ summary: 'Get all images from project gallery with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated gallery images retrieved successfully' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  findAll(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
+    return this.galleryService.findAll(projectId, paginationDto);
   }
 
   @Get(':id')
@@ -137,10 +142,12 @@ export class GalleryController {
 
   @Get('public/:projectId')
   @Public()
-  @ApiOperation({ summary: 'Get public gallery of a project' })
-  @ApiResponse({ status: 200, description: 'Project gallery' })
+  @ApiOperation({ summary: 'Get public gallery of a project with pagination' })
+  @ApiResponse({ status: 200, description: 'Paginated project gallery' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  async getPublicGallery(@Param('projectId') projectId: string) {
-    return this.galleryService.findAll(projectId);
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  async getPublicGallery(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
+    return this.galleryService.findAll(projectId, paginationDto);
   }
 } 
