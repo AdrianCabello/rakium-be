@@ -182,4 +182,82 @@ export class UploadController {
       projectId,
     };
   }
+
+  @Post('image/variants')
+  @ApiOperation({ 
+    summary: 'Subir imagen con múltiples variantes optimizadas',
+    description: 'Sube una imagen y crea automáticamente múltiples versiones optimizadas (thumbnail, medium, large).'
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Archivo de imagen a subir con variantes',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo de imagen (JPEG, PNG, GIF, WebP)',
+        },
+        folder: {
+          type: 'string',
+          description: 'Carpeta donde guardar las variantes (opcional)',
+          example: 'projects/gallery',
+        },
+      },
+    },
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Imagen subida con variantes exitosamente',
+    schema: {
+      type: 'object',
+      properties: {
+        original: {
+          type: 'string',
+          description: 'URL de la imagen original',
+        },
+        thumbnail: {
+          type: 'string',
+          description: 'URL de la versión thumbnail (300x200)',
+        },
+        medium: {
+          type: 'string',
+          description: 'URL de la versión medium (800x600)',
+        },
+        large: {
+          type: 'string',
+          description: 'URL de la versión large (1200x800)',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImageWithVariants(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('folder') folder?: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No se proporcionó ningún archivo');
+    }
+
+    const variants = [
+      { name: 'thumbnail', width: 300, height: 200, quality: 80, format: 'jpeg' as const },
+      { name: 'medium', width: 800, height: 600, quality: 85, format: 'webp' as const },
+      { name: 'large', width: 1200, height: 800, quality: 90, format: 'webp' as const },
+    ];
+
+    const urls = await this.uploadService.uploadWithVariants(file, folder || 'images', variants);
+    
+    return {
+      message: 'Imagen subida con variantes exitosamente',
+      variants: urls,
+      originalSize: file.size,
+      optimizedSizes: {
+        thumbnail: urls.thumbnail ? 'Optimizada' : 'No disponible',
+        medium: urls.medium ? 'Optimizada' : 'No disponible',
+        large: urls.large ? 'Optimizada' : 'No disponible',
+      }
+    };
+  }
 } 

@@ -66,9 +66,9 @@ export class GalleryService {
       throw new BadRequestException('No se pueden agregar más de 10 imágenes a la galería');
     }
 
-    // Subir archivo a Backblaze B2
+    // Subir archivo a Backblaze B2 con optimización automática
     const folder = `projects/${projectId}/gallery`;
-    const url = await this.uploadService.uploadFile(file, folder);
+    const url = await this.uploadService.uploadFile(file, folder, true); // optimize = true
 
     // Obtener el último orden
     const lastOrder = project.gallery.length > 0 

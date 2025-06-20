@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { LoginDto } from '../dto/login.dto';
@@ -35,5 +35,31 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto.email, loginDto.password);
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Obtener información del usuario autenticado' })
+  @ApiResponse({ status: 200, description: 'Información del usuario' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  getProfile(@Request() req) {
+    console.log('👤 Auth Controller - getProfile called');
+    console.log('👤 Auth Controller - User from request:', req.user);
+    return req.user;
+  }
+
+  @Get('test-auth')
+  @ApiOperation({ summary: 'Endpoint de prueba para verificar autenticación' })
+  @ApiResponse({ status: 200, description: 'Autenticación exitosa' })
+  @ApiResponse({ status: 401, description: 'No autorizado' })
+  testAuth(@Request() req) {
+    console.log('🧪 Auth Controller - testAuth called');
+    console.log('🧪 Auth Controller - Headers:', req.headers);
+    console.log('🧪 Auth Controller - User:', req.user);
+    
+    return {
+      message: 'Autenticación exitosa',
+      user: req.user,
+      timestamp: new Date().toISOString()
+    };
   }
 } 

@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ConfigService } from '@nestjs/config';
+import { ImageOptimizerService } from './image-optimizer.service';
 
 @Injectable()
 export class UploadService {
@@ -10,7 +11,10 @@ export class UploadService {
   private accessKeyId: string;
   private secretAccessKey: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private imageOptimizer: ImageOptimizerService
+  ) {
     this.bucketName = this.configService.get<string>('BACKBLAZE_BUCKET_NAME');
     this.accessKeyId = this.configService.get<string>('BACKBLAZE_ACCESS_KEY_ID');
     this.secretAccessKey = this.configService.get<string>('BACKBLAZE_SECRET_ACCESS_KEY');
@@ -32,7 +36,7 @@ export class UploadService {
     });
   }
 
-  async uploadFile(file: Express.Multer.File, folder: string = 'images'): Promise<string> {
+  async uploadFile(file: Express.Multer.File, folder: string = 'images', optimize: boolean = true): Promise<string> {
     if (!file) {
       throw new BadRequestException('No se proporcionó ningún archivo');
     }
@@ -54,18 +58,33 @@ export class UploadService {
       throw new BadRequestException('El archivo es demasiado grande. Máximo 10MB');
     }
 
+    let uploadBuffer = file.buffer;
+    let uploadMimeType = file.mimetype;
+    let fileExtension = file.originalname.split('.').pop();
+
+    // Optimizar imagen si está habilitado y es necesario
+    if (optimize && await this.imageOptimizer.needsOptimization(file.buffer)) {
+      console.log(`🔄 Optimizando imagen: ${file.originalname} (${file.size} bytes)`);
+      
+      const optimized = await this.imageOptimizer.autoOptimize(file.buffer, 'gallery');
+      uploadBuffer = optimized.buffer;
+      uploadMimeType = optimized.mimeType;
+      fileExtension = optimized.mimeType.split('/')[1];
+      
+      console.log(`✅ Imagen optimizada: ${optimized.size} bytes (${Math.round((1 - optimized.size / file.size) * 100)}% reducción)`);
+    }
+
     // Generar nombre único para el archivo
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = file.originalname.split('.').pop();
     const fileName = `${folder}/${timestamp}-${randomString}.${fileExtension}`;
 
     try {
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: fileName,
-        Body: file.buffer,
-        ContentType: file.mimetype,
+        Body: uploadBuffer,
+        ContentType: uploadMimeType,
         ACL: 'public-read',
       });
 
@@ -86,6 +105,52 @@ export class UploadService {
       
       throw new BadRequestException(`Error al subir el archivo: ${error.message}`);
     }
+  }
+
+  async uploadWithVariants(
+    file: Express.Multer.File, 
+    folder: string = 'images',
+    variants: { name: string; width?: number; height?: number; quality?: number; format?: 'jpeg' | 'png' | 'webp' }[]
+  ): Promise<{ [key: string]: string }> {
+    if (!file) {
+      throw new BadRequestException('No se proporcionó ningún archivo');
+    }
+
+    // Validar tipo de archivo
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Tipo de archivo no permitido. Solo se permiten imágenes (JPEG, PNG, GIF, WebP)');
+    }
+
+    // Crear variantes de la imagen
+    const imageVariants = await this.imageOptimizer.createImageVariants(file.buffer, variants);
+    const urls: { [key: string]: string } = {};
+
+    // Subir cada variante
+    for (const [variantName, variant] of Object.entries(imageVariants)) {
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const fileExtension = variant.mimeType.split('/')[1];
+      const fileName = `${folder}/${variantName}/${timestamp}-${randomString}.${fileExtension}`;
+
+      try {
+        const command = new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: fileName,
+          Body: variant.buffer,
+          ContentType: variant.mimeType,
+          ACL: 'public-read',
+        });
+
+        await this.s3Client.send(command);
+        urls[variantName] = `https://${this.bucketName}.s3.us-east-005.backblazeb2.com/${fileName}`;
+      } catch (error) {
+        console.error(`Error subiendo variante ${variantName}:`, error);
+        throw new BadRequestException(`Error al subir la variante ${variantName}: ${error.message}`);
+      }
+    }
+
+    return urls;
   }
 
   async deleteFile(fileUrl: string): Promise<void> {
