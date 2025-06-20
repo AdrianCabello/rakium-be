@@ -34,17 +34,17 @@ model Client {
 }
 
 model Project {
-  id              String          @id @default(uuid())
+  id              String           @id @default(uuid())
   name            String
   type            ProjectType?
-  status          ProjectStatus   @default(DRAFT) @map("status")
+  status          ProjectStatus    @default(DRAFT) @map("status")
   category        ProjectCategory?
   description     String?
-  longDescription String?         @map("long_description")
-  imageBefore     String?         @map("image_before")
-  imageAfter      String?         @map("image_after")
-  latitude        Float?          @map("latitude")
-  longitude       Float?          @map("longitude")
+  longDescription String?          @map("long_description")
+  imageBefore     String?          @map("image_before")
+  imageAfter      String?          @map("image_after")
+  latitude        Float?           @map("latitude")
+  longitude       Float?           @map("longitude")
   address         String?
   country         String?
   state           String?
@@ -52,22 +52,23 @@ model Project {
   area            String?
   duration        String?
   date            String?
-  startDate       DateTime?       @map("start_date")
-  endDate         DateTime?       @map("end_date")
   url             String?
-  clientId        String          @map("client_id")
+  clientId        String           @map("client_id")
   challenge       String?
   solution        String?
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
-  beforeImageId   String?         @unique @map("before_image_id")
-  afterImageId    String?         @unique @map("after_image_id")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  beforeImageId   String?          @unique @map("before_image_id")
+  afterImageId    String?          @unique @map("after_image_id")
   createdBy       String?
+  endDate         DateTime?        @map("end_date")
+  startDate       DateTime?        @map("start_date")
   gallery         Gallery[]
-  afterImage      Gallery?        @relation("AfterImage", fields: [afterImageId], references: [id])
-  beforeImage     Gallery?        @relation("BeforeImage", fields: [beforeImageId], references: [id])
-  client          Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  creator         User?           @relation("CreatedBy", fields: [createdBy], references: [id])
+  videos          Video[]
+  afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])
+  beforeImage     Gallery?         @relation("BeforeImage", fields: [beforeImageId], references: [id])
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  creator         User?            @relation("CreatedBy", fields: [createdBy], references: [id])
 
   @@map("projects")
 }
@@ -86,6 +87,20 @@ model Gallery {
   beforeImageOf Project? @relation("BeforeImage")
 
   @@map("Gallery")
+}
+
+model Video {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  youtubeUrl  String   @map("youtube_url")
+  order       Int      @default(0)
+  projectId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("Video")
 }
 
 enum UserRole {

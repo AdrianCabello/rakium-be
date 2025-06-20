@@ -84,6 +84,11 @@ export class ProjectsService {
             order: 'asc',
           },
         },
+        videos: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
       },
     });
   }
@@ -100,6 +105,11 @@ export class ProjectsService {
           }
         },
         gallery: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
+        videos: {
           orderBy: {
             order: 'asc',
           },
