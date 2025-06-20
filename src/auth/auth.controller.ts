@@ -42,8 +42,6 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Información del usuario' })
   @ApiResponse({ status: 401, description: 'No autorizado' })
   getProfile(@Request() req) {
-    console.log('👤 Auth Controller - getProfile called');
-    console.log('👤 Auth Controller - User from request:', req.user);
     return req.user;
   }
 
@@ -52,10 +50,6 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Autenticación exitosa' })
   @ApiResponse({ status: 401, description: 'No autorizado' })
   testAuth(@Request() req) {
-    console.log('🧪 Auth Controller - testAuth called');
-    console.log('🧪 Auth Controller - Headers:', req.headers);
-    console.log('🧪 Auth Controller - User:', req.user);
-    
     return {
       message: 'Autenticación exitosa',
       user: req.user,

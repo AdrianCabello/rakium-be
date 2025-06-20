@@ -88,36 +88,18 @@ export class GalleryService {
   }
 
   async findAll(projectId: string) {
-    console.log(`🔍 Buscando galería para proyecto: ${projectId}`);
-    
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
 
     if (!project) {
-      console.log(`❌ Proyecto no encontrado: ${projectId}`);
       throw new NotFoundException(`Project with ID ${projectId} not found`);
     }
-
-    console.log(`✅ Proyecto encontrado: ${project.name} (status: ${project.status})`);
-
-    // Verificar si hay datos en la tabla Gallery
-    const totalGalleryItems = await this.prisma.gallery.count();
-    console.log(`📊 Total de elementos en tabla Gallery: ${totalGalleryItems}`);
-
-    // Verificar elementos específicos de este proyecto
-    const projectGalleryCount = await this.prisma.gallery.count({
-      where: { projectId },
-    });
-    console.log(`📊 Elementos en galería para proyecto ${projectId}: ${projectGalleryCount}`);
 
     const gallery = await this.prisma.gallery.findMany({
       where: { projectId },
       orderBy: { order: 'asc' },
     });
-
-    console.log(`📸 Imágenes encontradas en galería: ${gallery.length}`);
-    console.log(`📋 Datos de galería:`, gallery);
 
     return gallery;
   }

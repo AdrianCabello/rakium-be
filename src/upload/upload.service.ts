@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ConfigService } from '@nestjs/config';
 import { ImageOptimizerService } from './image-optimizer.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UploadService {
@@ -13,7 +14,8 @@ export class UploadService {
 
   constructor(
     private configService: ConfigService,
-    private imageOptimizer: ImageOptimizerService
+    private imageOptimizer: ImageOptimizerService,
+    private prisma: PrismaService
   ) {
     this.bucketName = this.configService.get<string>('BACKBLAZE_BUCKET_NAME');
     this.accessKeyId = this.configService.get<string>('BACKBLAZE_ACCESS_KEY_ID');
@@ -64,14 +66,10 @@ export class UploadService {
 
     // Optimizar imagen si está habilitado y es necesario
     if (optimize && await this.imageOptimizer.needsOptimization(file.buffer)) {
-      console.log(`🔄 Optimizando imagen: ${file.originalname} (${file.size} bytes)`);
-      
       const optimized = await this.imageOptimizer.autoOptimize(file.buffer, 'gallery');
       uploadBuffer = optimized.buffer;
       uploadMimeType = optimized.mimeType;
       fileExtension = optimized.mimeType.split('/')[1];
-      
-      console.log(`✅ Imagen optimizada: ${optimized.size} bytes (${Math.round((1 - optimized.size / file.size) * 100)}% reducción)`);
     }
 
     // Generar nombre único para el archivo
@@ -186,5 +184,34 @@ export class UploadService {
     });
 
     return await getSignedUrl(this.s3Client, command, { expiresIn });
+  }
+
+  async uploadImage(file: Express.Multer.File, projectId: string, order?: number) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${projectId} not found`);
+    }
+
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const filePath = `projects/${projectId}/${fileName}`;
+
+    const uploadResult = await this.uploadFile(file, filePath);
+
+    const galleryItem = await this.prisma.gallery.create({
+      data: {
+        projectId,
+        url: uploadResult,
+        order: order || 0,
+      },
+    });
+
+    return galleryItem;
   }
 } 

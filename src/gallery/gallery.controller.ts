@@ -107,7 +107,6 @@ export class GalleryController {
   @ApiOperation({ summary: 'Get all images from project gallery' })
   @ApiResponse({ status: 200, description: 'Return all images' })
   findAll(@Param('projectId') projectId: string) {
-    console.log(`🎯 Controlador: GET /projects/${projectId}/gallery llamado`);
     return this.galleryService.findAll(projectId);
   }
 
@@ -144,5 +143,14 @@ export class GalleryController {
     @Body('galleryIds') galleryIds: string[],
   ) {
     return this.galleryService.reorder(projectId, galleryIds);
+  }
+
+  @Get('public/:projectId')
+  @Public()
+  @ApiOperation({ summary: 'Obtener galería pública de un proyecto' })
+  @ApiResponse({ status: 200, description: 'Galería del proyecto' })
+  @ApiResponse({ status: 404, description: 'Proyecto no encontrado' })
+  async getPublicGallery(@Param('projectId') projectId: string) {
+    return this.galleryService.findAll(projectId);
   }
 } 
