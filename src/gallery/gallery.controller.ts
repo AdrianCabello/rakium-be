@@ -107,6 +107,7 @@ export class GalleryController {
   @ApiOperation({ summary: 'Get all images from project gallery' })
   @ApiResponse({ status: 200, description: 'Return all images' })
   findAll(@Param('projectId') projectId: string) {
+    console.log(`🎯 Controlador: GET /projects/${projectId}/gallery llamado`);
     return this.galleryService.findAll(projectId);
   }
 
