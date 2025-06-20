@@ -9,46 +9,57 @@ export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProjectDto: CreateProjectDto, userId?: string) {
-    try {
-      // Verificar que el cliente exista
-      const client = await this.prisma.client.findUnique({
-        where: { id: createProjectDto.clientId },
-      });
+    // Verificar que el cliente exista
+    const client = await this.prisma.client.findUnique({
+      where: { id: createProjectDto.clientId },
+    });
 
-      if (!client) {
-        throw new NotFoundException(`No se encontró ningún cliente con el ID: ${createProjectDto.clientId}`);
-      }
-
-      // Preparar los datos del proyecto
-      const projectData = {
-        ...createProjectDto,
-        createdBy: userId,
-        // Si type es undefined o null, no lo incluimos en los datos
-        ...(createProjectDto.type === undefined || createProjectDto.type === null ? {} : { type: createProjectDto.type }),
-      };
-
-      return this.prisma.project.create({
-        data: projectData,
-        include: {
-          client: true,
-          creator: true,
-        },
-      });
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2003') {
-          throw new BadRequestException(
-            `No se puede crear el proyecto porque el cliente con ID ${createProjectDto.clientId} no existe en la base de datos.`
-          );
-        }
-      }
-      
-      throw new BadRequestException(`Error al crear el proyecto: ${error.message}`);
+    if (!client) {
+      throw new NotFoundException(`No se encontró ningún cliente con el ID: ${createProjectDto.clientId}`);
     }
+
+    // Preparar los datos del proyecto - solo incluir campos válidos del DTO
+    const projectData: Prisma.ProjectCreateInput = {
+      name: createProjectDto.name,
+      type: createProjectDto.type,
+      status: createProjectDto.status,
+      category: createProjectDto.category,
+      description: createProjectDto.description,
+      longDescription: createProjectDto.longDescription,
+      imageBefore: createProjectDto.imageBefore,
+      imageAfter: createProjectDto.imageAfter,
+      latitude: createProjectDto.latitude,
+      longitude: createProjectDto.longitude,
+      address: createProjectDto.address,
+      country: createProjectDto.country,
+      state: createProjectDto.state,
+      city: createProjectDto.city,
+      area: createProjectDto.area,
+      duration: createProjectDto.duration,
+      date: createProjectDto.date,
+      startDate: createProjectDto.startDate ? new Date(createProjectDto.startDate) : undefined,
+      endDate: createProjectDto.endDate ? new Date(createProjectDto.endDate) : undefined,
+      url: createProjectDto.url,
+      client: {
+        connect: { id: createProjectDto.clientId }
+      },
+      challenge: createProjectDto.challenge,
+      solution: createProjectDto.solution,
+      ...(userId && { creator: { connect: { id: userId } } }),
+    };
+
+    // Filtrar campos undefined/null
+    const filteredData = Object.fromEntries(
+      Object.entries(projectData).filter(([_, value]) => value !== undefined && value !== null)
+    ) as Prisma.ProjectCreateInput;
+
+    return this.prisma.project.create({
+      data: filteredData,
+      include: {
+        client: true,
+        creator: true,
+      },
+    });
   }
 
   async findAll() {
@@ -215,15 +226,40 @@ export class ProjectsService {
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {
     // Preparar los datos de actualización
-    const updateData = {
-      ...updateProjectDto,
-      // Si type es undefined o null, no lo incluimos en los datos
-      ...(updateProjectDto.type === undefined || updateProjectDto.type === null ? {} : { type: updateProjectDto.type }),
+    const updateData: Prisma.ProjectUpdateInput = {
+      name: updateProjectDto.name,
+      type: updateProjectDto.type,
+      status: updateProjectDto.status,
+      category: updateProjectDto.category,
+      description: updateProjectDto.description,
+      longDescription: updateProjectDto.longDescription,
+      imageBefore: updateProjectDto.imageBefore,
+      imageAfter: updateProjectDto.imageAfter,
+      latitude: updateProjectDto.latitude,
+      longitude: updateProjectDto.longitude,
+      address: updateProjectDto.address,
+      country: updateProjectDto.country,
+      state: updateProjectDto.state,
+      city: updateProjectDto.city,
+      area: updateProjectDto.area,
+      duration: updateProjectDto.duration,
+      date: updateProjectDto.date,
+      startDate: updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : undefined,
+      endDate: updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : undefined,
+      url: updateProjectDto.url,
+      challenge: updateProjectDto.challenge,
+      solution: updateProjectDto.solution,
+      ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };
+
+    // Filtrar campos undefined/null
+    const filteredData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined && value !== null)
+    ) as Prisma.ProjectUpdateInput;
 
     return this.prisma.project.update({
       where: { id },
-      data: updateData,
+      data: filteredData,
       include: {
         client: true,
         creator: true,

@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max, IsUUID, MaxLength } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, Min, Max, IsUUID, MaxLength, IsDateString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
@@ -158,7 +158,7 @@ export class CreateProjectDto {
   duration?: string;
 
   @ApiProperty({
-    description: 'Fecha del proyecto',
+    description: 'Fecha del proyecto (formato: YYYY-MM-DD)',
     example: '2024-01-01',
     required: false,
   })
@@ -166,6 +166,24 @@ export class CreateProjectDto {
   @IsOptional()
   @MaxLength(1000)
   date?: string;
+
+  @ApiProperty({
+    description: 'Fecha de inicio del proyecto (formato ISO 8601)',
+    example: '2024-01-01T00:00:00.000Z',
+    required: false,
+  })
+  @IsDateString()
+  @IsOptional()
+  startDate?: string;
+
+  @ApiProperty({
+    description: 'Fecha de finalización del proyecto (formato ISO 8601)',
+    example: '2024-12-31T23:59:59.999Z',
+    required: false,
+  })
+  @IsDateString()
+  @IsOptional()
+  endDate?: string;
 
   @ApiProperty({
     description: 'URL del proyecto',
@@ -204,6 +222,11 @@ export class CreateProjectDto {
   @MaxLength(1000)
   solution?: string;
 
+  @ApiProperty({
+    description: 'ID del usuario creador (se asigna automáticamente)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(1000)

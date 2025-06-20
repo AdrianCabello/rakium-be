@@ -52,6 +52,8 @@ model Project {
   area            String?
   duration        String?
   date            String?
+  startDate       DateTime?       @map("start_date")
+  endDate         DateTime?       @map("end_date")
   url             String?
   clientId        String          @map("client_id")
   challenge       String?
