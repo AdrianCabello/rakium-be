@@ -1,6 +1,35 @@
-import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max, MaxLength, IsDateString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max, MaxLength, IsDateString, ValidateNested, IsObject, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
+
+export class AddressDto {
+  @ApiProperty({
+    description: 'Complete address string',
+    example: 'Lobería, Buenos Aires Province, Argentina',
+  })
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @ApiProperty({
+    description: 'Latitude coordinate',
+    example: -38.1634422,
+  })
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  lat: number;
+
+  @ApiProperty({
+    description: 'Longitude coordinate',
+    example: -58.7816955,
+  })
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  lng: number;
+}
 
 export class UpdateProjectDto {
   @ApiProperty({
@@ -101,13 +130,19 @@ export class UpdateProjectDto {
   longitude?: number;
 
   @ApiProperty({
-    description: 'Project address',
-    example: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
+    description: 'Project address object with coordinates',
+    example: {
+      address: 'Lobería, Buenos Aires Province, Argentina',
+      lat: -38.1634422,
+      lng: -58.7816955
+    },
     required: false,
   })
-  @IsString()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AddressDto)
   @IsOptional()
-  address?: string;
+  address?: AddressDto;
 
   @ApiProperty({
     description: 'Project country',

@@ -45,7 +45,7 @@ model Project {
   imageAfter      String?          @map("image_after")
   latitude        Float?           @map("latitude")
   longitude       Float?           @map("longitude")
-  address         String?
+  address         Json?            @map("address")
   country         String?
   state           String?
   city            String?

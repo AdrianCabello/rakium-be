@@ -60,7 +60,11 @@ export class ProjectsController {
           imageAfter: 'https://ejemplo.com/despues.jpg',
           latitude: 19.4326,
           longitude: -99.1332,
-          address: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
+          address: {
+            address: 'Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, 03940 Ciudad de México, CDMX',
+            lat: 19.4326,
+            lng: -99.1332
+          },
           country: 'México',
           state: 'Ciudad de México',
           city: 'Benito Juárez',
