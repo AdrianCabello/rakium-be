@@ -47,6 +47,12 @@ export class ProjectsService {
       },
       challenge: createProjectDto.challenge,
       solution: createProjectDto.solution,
+      contactName: createProjectDto.contactName,
+      contactPhone: createProjectDto.contactPhone,
+      contactEmail: createProjectDto.contactEmail,
+      budget: createProjectDto.budget,
+      invoiceStatus: createProjectDto.invoiceStatus,
+      notes: createProjectDto.notes,
       ...(userId && { creator: { connect: { id: userId } } }),
     };
 
@@ -342,6 +348,12 @@ export class ProjectsService {
       url: updateProjectDto.url,
       challenge: updateProjectDto.challenge,
       solution: updateProjectDto.solution,
+      contactName: updateProjectDto.contactName,
+      contactPhone: updateProjectDto.contactPhone,
+      contactEmail: updateProjectDto.contactEmail,
+      budget: updateProjectDto.budget,
+      invoiceStatus: updateProjectDto.invoiceStatus,
+      notes: updateProjectDto.notes,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };
 

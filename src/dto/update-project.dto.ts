@@ -265,4 +265,58 @@ export class UpdateProjectDto {
   @IsString()
   @MaxLength(1000)
   createdBy?: string;
+
+  @ApiProperty({
+    description: 'Nombre de contacto interno',
+    example: 'Juan Pérez',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  contactName?: string;
+
+  @ApiProperty({
+    description: 'Teléfono de contacto interno',
+    example: '+52 55 1234 5678',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  contactPhone?: string;
+
+  @ApiProperty({
+    description: 'Email de contacto interno',
+    example: 'contacto@empresa.com',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  contactEmail?: string;
+
+  @ApiProperty({
+    description: 'Presupuesto estimado o real del proyecto',
+    example: '$50,000 USD',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  budget?: string;
+
+  @ApiProperty({
+    description: 'Estado de facturación',
+    example: 'pendiente',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  invoiceStatus?: string;
+
+  @ApiProperty({
+    description: 'Notas internas o comentarios adicionales',
+    example: 'Cliente VIP, requiere atención especial',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  notes?: string;
 } 

@@ -63,6 +63,13 @@ model Project {
   createdBy       String?
   endDate         DateTime?        @map("end_date")
   startDate       DateTime?        @map("start_date")
+  // Campos de información interna (opcionales)
+  contactName     String?          @map("contact_name")
+  contactPhone    String?          @map("contact_phone")
+  contactEmail    String?          @map("contact_email")
+  budget          String?          @map("budget")
+  invoiceStatus   String?          @map("invoice_status")
+  notes           String?          @map("notes")
   gallery         Gallery[]
   videos          Video[]
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])
