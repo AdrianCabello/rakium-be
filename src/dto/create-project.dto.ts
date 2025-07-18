@@ -66,8 +66,9 @@ export class CreateProjectDto {
     example: ProjectCategory.ESTACIONES,
     required: false,
   })
-  @IsEnum(ProjectCategory)
+  @IsEnum(ProjectCategory, { message: 'category must be one of the following values: ESTACIONES, TIENDAS, COMERCIALES' })
   @IsOptional()
+  @Transform(({ value }) => value === '' ? null : value)
   category?: ProjectCategory;
 
   @ApiProperty({

@@ -1,6 +1,6 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max, MaxLength, IsDateString, ValidateNested, IsObject, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
 
 export class AddressDto {
@@ -67,8 +67,9 @@ export class UpdateProjectDto {
     example: ProjectCategory.ESTACIONES,
     required: false,
   })
-  @IsEnum(ProjectCategory)
+  @IsEnum(ProjectCategory, { message: 'category must be one of the following values: ESTACIONES, TIENDAS, COMERCIALES' })
   @IsOptional()
+  @Transform(({ value }) => value === '' ? null : value)
   category?: ProjectCategory;
 
   @ApiProperty({
