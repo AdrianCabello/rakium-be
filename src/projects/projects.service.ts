@@ -357,9 +357,9 @@ export class ProjectsService {
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };
 
-    // Filtrar campos undefined/null
+    // Filtrar campos undefined (pero permitir null explícito)
     const filteredData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined && value !== null)
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
     ) as Prisma.ProjectUpdateInput;
 
     return this.prisma.project.update({
