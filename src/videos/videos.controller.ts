@@ -70,7 +70,8 @@ export class VideosController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all videos from project with pagination' })
+  @Public()
+  @ApiOperation({ summary: 'Get all videos from project with pagination (public)' })
   @ApiResponse({ status: 200, description: 'Paginated videos retrieved successfully' })
   @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
   @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
@@ -89,7 +90,8 @@ export class VideosController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a specific video from project' })
+  @Public()
+  @ApiOperation({ summary: 'Get a specific video from project (public)' })
   @ApiResponse({ status: 200, description: 'Video retrieved successfully' })
   findOne(@Param('projectId') projectId: string, @Param('id') id: string) {
     return this.videosService.findOne(projectId, id);

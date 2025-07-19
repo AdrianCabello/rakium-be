@@ -56,6 +56,11 @@ export class VideosService {
       throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
     }
 
+    // Verificar que el proyecto esté publicado para acceso público
+    if (project.status !== 'PUBLISHED') {
+      throw new NotFoundException(`El proyecto con ID ${projectId} no está publicado`);
+    }
+
     const { skip, take, page, limit } = getPaginationParams(paginationDto);
 
     const [videos, total] = await Promise.all([
@@ -110,6 +115,11 @@ export class VideosService {
 
     if (!project) {
       throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
+    }
+
+    // Verificar que el proyecto esté publicado para acceso público
+    if (project.status !== 'PUBLISHED') {
+      throw new NotFoundException(`El proyecto con ID ${projectId} no está publicado`);
     }
 
     const video = await this.prisma.video.findFirst({
