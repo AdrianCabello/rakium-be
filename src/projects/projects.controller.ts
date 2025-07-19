@@ -182,4 +182,20 @@ export class ProjectsController {
   async reorderProjects(@Body() reorderData: { id: string; order: number }[]) {
     return this.projectsService.reorderProjects(reorderData);
   }
+
+  @Patch(':id/order/:order')
+  @ApiOperation({ 
+    summary: 'Set project order with conflict resolution',
+    description: 'Set the order of a specific project, automatically resolving conflicts by shifting other projects'
+  })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiParam({ name: 'order', description: 'New order position' })
+  @ApiResponse({ status: 200, description: 'Project order updated successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  async setProjectOrder(
+    @Param('id') id: string,
+    @Param('order') order: string
+  ) {
+    return this.projectsService.setProjectOrder(id, parseInt(order));
+  }
 } 

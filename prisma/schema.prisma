@@ -79,6 +79,7 @@ model Project {
   creator         User?            @relation("CreatedBy", fields: [createdBy], references: [id])
 
   @@map("projects")
+  @@unique([clientId, order], name: "unique_order_per_client")
 }
 
 model Gallery {

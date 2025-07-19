@@ -327,7 +327,12 @@ export class ProjectsService {
   }
 
   async update(id: string, updateProjectDto: UpdateProjectDto) {
-    // Preparar los datos de actualización
+    // Si se está actualizando el orden, manejar conflictos automáticamente
+    if (updateProjectDto.order !== undefined) {
+      return this.handleOrderUpdate(id, updateProjectDto);
+    }
+
+    // Preparar los datos de actualización (sin orden)
     const updateData: Prisma.ProjectUpdateInput = {
       name: updateProjectDto.name,
       type: updateProjectDto.type,
@@ -357,7 +362,6 @@ export class ProjectsService {
       budget: updateProjectDto.budget,
       invoiceStatus: updateProjectDto.invoiceStatus,
       notes: updateProjectDto.notes,
-      order: updateProjectDto.order,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };
 
@@ -366,6 +370,92 @@ export class ProjectsService {
       Object.entries(updateData).filter(([_, value]) => value !== undefined)
     ) as Prisma.ProjectUpdateInput;
 
+    return this.prisma.project.update({
+      where: { id },
+      data: filteredData,
+      include: {
+        client: true,
+        creator: true,
+      },
+    });
+  }
+
+  private async handleOrderUpdate(id: string, updateProjectDto: UpdateProjectDto) {
+    // Obtener el proyecto actual
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      select: { clientId: true, order: true }
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${id}`);
+    }
+
+    const newOrder = updateProjectDto.order!;
+
+    // Verificar si ya existe un proyecto con ese orden en el mismo cliente
+    const existingProject = await this.prisma.project.findFirst({
+      where: {
+        clientId: project.clientId,
+        order: newOrder,
+        id: { not: id } // Excluir el proyecto actual
+      }
+    });
+
+    // Preparar los datos de actualización (incluyendo orden)
+    const updateData: Prisma.ProjectUpdateInput = {
+      name: updateProjectDto.name,
+      type: updateProjectDto.type,
+      status: updateProjectDto.status,
+      category: updateProjectDto.category,
+      description: updateProjectDto.description,
+      longDescription: updateProjectDto.longDescription,
+      imageBefore: updateProjectDto.imageBefore,
+      imageAfter: updateProjectDto.imageAfter,
+      latitude: updateProjectDto.latitude,
+      longitude: updateProjectDto.longitude,
+      address: updateProjectDto.address as unknown as Prisma.JsonValue,
+      country: updateProjectDto.country,
+      state: updateProjectDto.state,
+      city: updateProjectDto.city,
+      area: updateProjectDto.area,
+      duration: updateProjectDto.duration,
+      date: updateProjectDto.date,
+      startDate: updateProjectDto.startDate ? new Date(updateProjectDto.startDate) : undefined,
+      endDate: updateProjectDto.endDate ? new Date(updateProjectDto.endDate) : undefined,
+      url: updateProjectDto.url,
+      challenge: updateProjectDto.challenge,
+      solution: updateProjectDto.solution,
+      contactName: updateProjectDto.contactName,
+      contactPhone: updateProjectDto.contactPhone,
+      contactEmail: updateProjectDto.contactEmail,
+      budget: updateProjectDto.budget,
+      invoiceStatus: updateProjectDto.invoiceStatus,
+      notes: updateProjectDto.notes,
+      order: newOrder,
+      ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
+    };
+
+    // Filtrar campos undefined
+    const filteredData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+    ) as Prisma.ProjectUpdateInput;
+
+    // Si existe conflicto, resolverlo automáticamente
+    if (existingProject) {
+      // Desplazar todos los proyectos hacia arriba para hacer espacio
+      await this.prisma.project.updateMany({
+        where: {
+          clientId: project.clientId,
+          order: { gte: newOrder }
+        },
+        data: {
+          order: { increment: 1 }
+        }
+      });
+    }
+
+    // Actualizar el proyecto con todos los datos
     return this.prisma.project.update({
       where: { id },
       data: filteredData,
@@ -392,5 +482,49 @@ export class ProjectsService {
     );
 
     return this.prisma.$transaction(updates);
+  }
+
+  async setProjectOrder(projectId: string, newOrder: number) {
+    // Obtener el proyecto actual
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { clientId: true, order: true }
+    });
+
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${projectId}`);
+    }
+
+    // Verificar si ya existe un proyecto con ese orden en el mismo cliente
+    const existingProject = await this.prisma.project.findFirst({
+      where: {
+        clientId: project.clientId,
+        order: newOrder,
+        id: { not: projectId } // Excluir el proyecto actual
+      }
+    });
+
+    if (existingProject) {
+      // Si existe conflicto, desplazar todos los proyectos hacia arriba
+      await this.prisma.project.updateMany({
+        where: {
+          clientId: project.clientId,
+          order: { gte: newOrder }
+        },
+        data: {
+          order: { increment: 1 }
+        }
+      });
+    }
+
+    // Actualizar el proyecto con el nuevo orden
+    return this.prisma.project.update({
+      where: { id: projectId },
+      data: { order: newOrder },
+      include: {
+        client: true,
+        creator: true,
+      },
+    });
   }
 } 
