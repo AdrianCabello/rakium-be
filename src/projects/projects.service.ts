@@ -53,6 +53,7 @@ export class ProjectsService {
       budget: createProjectDto.budget,
       invoiceStatus: createProjectDto.invoiceStatus,
       notes: createProjectDto.notes,
+      order: createProjectDto.order,
       ...(userId && { creator: { connect: { id: userId } } }),
     };
 
@@ -81,9 +82,10 @@ export class ProjectsService {
           client: true,
           gallery: true,
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [
+          { order: 'asc' },
+          { createdAt: 'desc' },
+        ],
         skip,
         take,
       }),
@@ -167,9 +169,10 @@ export class ProjectsService {
             },
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [
+          { order: 'asc' },
+          { createdAt: 'desc' },
+        ],
         skip,
         take,
       }),
@@ -354,6 +357,7 @@ export class ProjectsService {
       budget: updateProjectDto.budget,
       invoiceStatus: updateProjectDto.invoiceStatus,
       notes: updateProjectDto.notes,
+      order: updateProjectDto.order,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };
 
@@ -376,5 +380,17 @@ export class ProjectsService {
     return this.prisma.project.delete({
       where: { id },
     });
+  }
+
+  async reorderProjects(reorderData: { id: string; order: number }[]) {
+    // Actualizar múltiples proyectos en una transacción
+    const updates = reorderData.map(({ id, order }) =>
+      this.prisma.project.update({
+        where: { id },
+        data: { order },
+      })
+    );
+
+    return this.prisma.$transaction(updates);
   }
 } 

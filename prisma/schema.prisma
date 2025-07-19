@@ -70,6 +70,7 @@ model Project {
   budget          String?          @map("budget")
   invoiceStatus   String?          @map("invoice_status")
   notes           String?          @map("notes")
+  order           Int              @default(0) @map("order")
   gallery         Gallery[]
   videos          Video[]
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])

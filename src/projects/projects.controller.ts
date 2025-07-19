@@ -159,4 +159,27 @@ export class ProjectsController {
   async findAllByClientId(@Param('clientId') clientId: string, @Query() paginationDto: PaginationDto) {
     return this.projectsService.findAllByClientId(clientId, paginationDto);
   }
+
+  @Patch('reorder')
+  @ApiOperation({ 
+    summary: 'Reorder projects',
+    description: 'Update the order of multiple projects at once'
+  })
+  @ApiResponse({ status: 200, description: 'Projects reordered successfully' })
+  @ApiBody({
+    description: 'Array of project IDs with their new order positions',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+          order: { type: 'number', example: 1 }
+        }
+      }
+    }
+  })
+  async reorderProjects(@Body() reorderData: { id: string; order: number }[]) {
+    return this.projectsService.reorderProjects(reorderData);
+  }
 } 

@@ -320,4 +320,13 @@ export class CreateProjectDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @ApiProperty({
+    description: 'Orden de visualización del proyecto (menor número = más arriba)',
+    example: 1,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  order?: number;
 } 
