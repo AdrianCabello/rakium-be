@@ -256,9 +256,10 @@ export class ProjectsService {
             }
           }
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [
+          { order: 'asc' },
+          { createdAt: 'desc' },
+        ],
         skip,
         take,
       }),
