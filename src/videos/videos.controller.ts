@@ -69,16 +69,6 @@ export class VideosController {
     return this.videosService.create(projectId, createVideoDto);
   }
 
-  @Get()
-  @Public()
-  @ApiOperation({ summary: 'Get all videos from project with pagination (public)' })
-  @ApiResponse({ status: 200, description: 'Paginated videos retrieved successfully' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
-  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
-  findAll(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
-    return this.videosService.findAll(projectId, paginationDto);
-  }
-
   @Get('public')
   @Public()
   @ApiOperation({ summary: 'Get public videos from project with pagination' })
@@ -87,6 +77,16 @@ export class VideosController {
   @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
   findPublicVideos(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
     return this.videosService.findPublicVideos(projectId, paginationDto);
+  }
+
+  @Get()
+  @Public()
+  @ApiOperation({ summary: 'Get all videos from project with pagination (public)' })
+  @ApiResponse({ status: 200, description: 'Paginated videos retrieved successfully' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  findAll(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
+    return this.videosService.findAll(projectId, paginationDto);
   }
 
   @Get(':id')
