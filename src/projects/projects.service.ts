@@ -239,7 +239,7 @@ export class ProjectsService {
       this.prisma.project.findMany({
         where: { 
           clientId,
-          status: 'PUBLISHED',
+          // Removido el filtro de status para devolver todos los proyectos
           ...searchFilter,
         },
         include: {
@@ -266,7 +266,7 @@ export class ProjectsService {
       this.prisma.project.count({
         where: { 
           clientId,
-          status: 'PUBLISHED',
+          // Removido el filtro de status para contar todos los proyectos
           ...searchFilter,
         },
       }),
