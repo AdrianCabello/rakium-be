@@ -54,6 +54,9 @@ export class ProjectsService {
       invoiceStatus: createProjectDto.invoiceStatus,
       notes: createProjectDto.notes,
       order: createProjectDto.order,
+      githubUrl: createProjectDto.githubUrl,
+      demoUrl: createProjectDto.demoUrl,
+      technologies: createProjectDto.technologies as unknown as Prisma.JsonValue,
       ...(userId && { creator: { connect: { id: userId } } }),
     };
 
@@ -363,6 +366,9 @@ export class ProjectsService {
       budget: updateProjectDto.budget,
       invoiceStatus: updateProjectDto.invoiceStatus,
       notes: updateProjectDto.notes,
+      githubUrl: updateProjectDto.githubUrl,
+      demoUrl: updateProjectDto.demoUrl,
+      technologies: updateProjectDto.technologies as unknown as Prisma.JsonValue,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };
 
@@ -433,6 +439,9 @@ export class ProjectsService {
       budget: updateProjectDto.budget,
       invoiceStatus: updateProjectDto.invoiceStatus,
       notes: updateProjectDto.notes,
+      githubUrl: updateProjectDto.githubUrl,
+      demoUrl: updateProjectDto.demoUrl,
+      technologies: updateProjectDto.technologies as unknown as Prisma.JsonValue,
       order: newOrder,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
     };

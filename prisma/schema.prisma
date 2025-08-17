@@ -45,7 +45,6 @@ model Project {
   imageAfter      String?          @map("image_after")
   latitude        Float?           @map("latitude")
   longitude       Float?           @map("longitude")
-  address         Json?            @map("address")
   country         String?
   state           String?
   city            String?
@@ -63,14 +62,17 @@ model Project {
   createdBy       String?
   endDate         DateTime?        @map("end_date")
   startDate       DateTime?        @map("start_date")
-  // Campos de información interna (opcionales)
+  address         Json?            @map("address")
+  budget          String?          @map("budget")
+  contactEmail    String?          @map("contact_email")
   contactName     String?          @map("contact_name")
   contactPhone    String?          @map("contact_phone")
-  contactEmail    String?          @map("contact_email")
-  budget          String?          @map("budget")
   invoiceStatus   String?          @map("invoice_status")
   notes           String?          @map("notes")
   order           Int              @default(0) @map("order")
+  githubUrl       String?          @map("github_url")
+  demoUrl         String?          @map("demo_url")
+  technologies    Json?            @map("technologies")
   gallery         Gallery[]
   videos          Video[]
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])

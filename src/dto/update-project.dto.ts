@@ -329,4 +329,36 @@ export class UpdateProjectDto {
   @IsNumber()
   @IsOptional()
   order?: number;
+
+  @ApiProperty({
+    description: 'URL del repositorio de GitHub',
+    example: 'https://github.com/usuario/proyecto',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  githubUrl?: string;
+
+  @ApiProperty({
+    description: 'URL de demostración del proyecto',
+    example: 'https://demo-proyecto.com',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  demoUrl?: string;
+
+  @ApiProperty({
+    description: 'Tecnologías utilizadas en el proyecto (separadas por comas)',
+    example: 'Angular, TypeScript, Firebase',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string' && value.trim()) {
+      return value.split(',').map(tech => tech.trim()).filter(tech => tech.length > 0);
+    }
+    return value;
+  })
+  technologies?: string;
 } 
