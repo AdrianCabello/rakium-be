@@ -1,0 +1,46 @@
+meta {
+  name: Update Video
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/projects/{{projectId}}/videos/{{videoId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Video de prueba Bruno - Actualizado",
+    "description": "Video actualizado desde Bruno",
+    "order": 2
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+  videoId: bruno.getEnvironmentVar("videoId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Video updated successfully", function() {
+    expect(res.getBody().title).to.equal("Video de prueba Bruno - Actualizado");
+    expect(res.getBody().description).to.equal("Video actualizado desde Bruno");
+    expect(res.getBody().order).to.equal(2);
+  });
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Test Auth
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/auth/test-auth
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has authentication message", function() {
+    expect(res.getBody().message).to.equal("Authentication successful");
+  });
+  
+  test("Response has user object", function() {
+    expect(res.getBody().user).to.be.an('object');
+  });
+}

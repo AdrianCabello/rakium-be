@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "name": "Rakium API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ],
+  "environments": [
+    "Production",
+    "Local"
+  ]
+}

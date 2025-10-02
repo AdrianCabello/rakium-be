@@ -1,0 +1,50 @@
+meta {
+  name: Create User
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "usuario-bruno@test.com",
+    "password": "password123",
+    "role": "CLIENT",
+    "clientId": "{{clientId}}"
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  clientId: bruno.getEnvironmentVar("clientId")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("User created successfully", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().email).to.equal("usuario-bruno@test.com");
+    expect(res.getBody().role).to.equal("CLIENT");
+  });
+  
+  test("Store user ID for later use", function() {
+    bruno.setEnvironmentVar("newUserId", res.getBody().id);
+  });
+}

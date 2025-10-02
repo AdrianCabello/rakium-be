@@ -1,0 +1,33 @@
+meta {
+  name: Get User by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/users/{{newUserId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  newUserId: bruno.getEnvironmentVar("newUserId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("User has required fields", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().email).to.be.a('string');
+    expect(res.getBody().role).to.be.a('string');
+  });
+}

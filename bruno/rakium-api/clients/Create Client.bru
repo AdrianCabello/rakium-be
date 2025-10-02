@@ -1,0 +1,47 @@
+meta {
+  name: Create Client
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/clients
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Cliente Bruno Test",
+    "email": "cliente-bruno@test.com"
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Client created successfully", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().name).to.equal("Cliente Bruno Test");
+    expect(res.getBody().email).to.equal("cliente-bruno@test.com");
+  });
+  
+  test("Store client ID for later use", function() {
+    bruno.setEnvironmentVar("newClientId", res.getBody().id);
+  });
+}

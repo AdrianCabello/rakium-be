@@ -1,0 +1,38 @@
+meta {
+  name: Upload Image Variants
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/upload/image/variants
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:multipart-form {
+  file: @file(test-image.png)
+  folder: projects/variants
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Image uploaded with variants", function() {
+    expect(res.getBody().original).to.be.a('string');
+    expect(res.getBody().thumbnail).to.be.a('string');
+    expect(res.getBody().medium).to.be.a('string');
+    expect(res.getBody().large).to.be.a('string');
+  });
+}

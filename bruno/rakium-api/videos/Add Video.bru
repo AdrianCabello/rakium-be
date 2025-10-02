@@ -1,0 +1,50 @@
+meta {
+  name: Add Video
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/projects/{{projectId}}/videos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Video de prueba Bruno",
+    "description": "Video agregado desde Bruno para testing",
+    "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "order": 1
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Video added successfully", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().title).to.equal("Video de prueba Bruno");
+    expect(res.getBody().youtubeUrl).to.equal("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  });
+  
+  test("Store video ID for later use", function() {
+    bruno.setEnvironmentVar("videoId", res.getBody().id);
+  });
+}

@@ -1,0 +1,51 @@
+meta {
+  name: Update Project
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/projects/{{projectId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Proyecto Bruno Test - Actualizado",
+    "description": "Proyecto actualizado desde Bruno",
+    "githubUrl": "https://github.com/usuario/proyecto-bruno-actualizado",
+    "demoUrl": "https://demo-bruno-actualizado.com",
+    "technologies": "Vue.js, JavaScript, Firebase, MongoDB",
+    "status": "PUBLISHED"
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Project updated successfully", function() {
+    expect(res.getBody().name).to.equal("Proyecto Bruno Test - Actualizado");
+    expect(res.getBody().githubUrl).to.equal("https://github.com/usuario/proyecto-bruno-actualizado");
+    expect(res.getBody().demoUrl).to.equal("https://demo-bruno-actualizado.com");
+    expect(res.getBody().technologies).to.be.an('array');
+    expect(res.getBody().technologies).to.include("Vue.js");
+    expect(res.getBody().status).to.equal("PUBLISHED");
+  });
+}

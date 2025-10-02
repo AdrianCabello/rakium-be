@@ -1,0 +1,39 @@
+meta {
+  name: Upload to Project Gallery
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/upload/project/{{projectId}}/gallery
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:multipart-form {
+  file: @file(test-image.png)
+  title: Imagen subida desde Bruno
+  description: Imagen subida directamente a la galería del proyecto
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Image uploaded to project gallery", function() {
+    expect(res.getBody().url).to.be.a('string');
+    expect(res.getBody().title).to.equal("Imagen subida desde Bruno");
+    expect(res.getBody().projectId).to.equal(bruno.getEnvironmentVar("projectId"));
+  });
+}

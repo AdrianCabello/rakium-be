@@ -1,0 +1,36 @@
+meta {
+  name: Reorder Videos
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/projects/{{projectId}}/videos/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  ["{{videoId}}"]
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+  videoId: bruno.getEnvironmentVar("videoId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Get Video by ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/projects/{{projectId}}/videos/{{videoId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  projectId: bruno.getEnvironmentVar("projectId")
+  videoId: bruno.getEnvironmentVar("videoId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Video has required fields", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().title).to.be.a('string');
+    expect(res.getBody().youtubeUrl).to.be.a('string');
+  });
+}

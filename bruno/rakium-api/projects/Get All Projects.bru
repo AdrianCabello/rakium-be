@@ -1,0 +1,42 @@
+meta {
+  name: Get All Projects
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/projects?page=1&limit=10
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has pagination structure", function() {
+    expect(res.getBody().data).to.be.an('array');
+    expect(res.getBody().pagination).to.be.an('object');
+  });
+  
+  test("Projects have required fields", function() {
+    if (res.getBody().data.length > 0) {
+      const project = res.getBody().data[0];
+      expect(project.id).to.be.a('string');
+      expect(project.name).to.be.a('string');
+      expect(project).to.have.property('githubUrl');
+      expect(project).to.have.property('demoUrl');
+      expect(project).to.have.property('technologies');
+    }
+  });
+}

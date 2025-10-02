@@ -1,0 +1,32 @@
+meta {
+  name: Delete Video
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/projects/{{projectId}}/videos/{{videoId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+  videoId: bruno.getEnvironmentVar("videoId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Video deleted successfully", function() {
+    expect(res.getBody().message).to.include("deleted");
+  });
+}

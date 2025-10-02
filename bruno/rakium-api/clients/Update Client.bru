@@ -1,0 +1,43 @@
+meta {
+  name: Update Client
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/clients/{{newClientId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Cliente Bruno Test - Actualizado",
+    "email": "cliente-bruno-actualizado@test.com"
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  newClientId: bruno.getEnvironmentVar("newClientId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Client updated successfully", function() {
+    expect(res.getBody().name).to.equal("Cliente Bruno Test - Actualizado");
+    expect(res.getBody().email).to.equal("cliente-bruno-actualizado@test.com");
+  });
+}

@@ -1,0 +1,37 @@
+meta {
+  name: Upload File
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/upload/file
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:multipart-form {
+  file: @file(test-image.png)
+  folder: projects/gallery
+  optimize: true
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("File uploaded successfully", function() {
+    expect(res.getBody()).to.be.a('string');
+    expect(res.getBody()).to.include('http');
+  });
+}

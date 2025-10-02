@@ -1,0 +1,50 @@
+meta {
+  name: Add Gallery Image
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/projects/{{projectId}}/gallery
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "url": "https://example.com/test-image.jpg",
+    "title": "Imagen de prueba Bruno",
+    "description": "Imagen agregada desde Bruno para testing",
+    "order": 1
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Image added successfully", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().title).to.equal("Imagen de prueba Bruno");
+    expect(res.getBody().url).to.equal("https://example.com/test-image.jpg");
+  });
+  
+  test("Store image ID for later use", function() {
+    bruno.setEnvironmentVar("galleryImageId", res.getBody().id);
+  });
+}

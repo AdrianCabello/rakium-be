@@ -1,0 +1,33 @@
+meta {
+  name: Get Client by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/clients/{{clientId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  clientId: bruno.getEnvironmentVar("clientId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Client has required fields", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().name).to.be.a('string');
+    expect(res.getBody().email).to.be.a('string');
+  });
+}

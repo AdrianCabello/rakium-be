@@ -1,0 +1,31 @@
+meta {
+  name: Set Project Order
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/projects/{{projectId}}/order/2
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Project order updated", function() {
+    expect(res.getBody().order).to.equal(2);
+  });
+}

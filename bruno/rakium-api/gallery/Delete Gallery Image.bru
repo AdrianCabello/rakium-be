@@ -1,0 +1,32 @@
+meta {
+  name: Delete Gallery Image
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/projects/{{projectId}}/gallery/{{galleryImageId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+  galleryImageId: bruno.getEnvironmentVar("galleryImageId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Image deleted successfully", function() {
+    expect(res.getBody().message).to.include("deleted");
+  });
+}

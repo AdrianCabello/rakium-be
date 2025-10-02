@@ -1,0 +1,43 @@
+meta {
+  name: Update User
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/users/{{newUserId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "usuario-bruno-actualizado@test.com",
+    "role": "CLIENT_ADMIN"
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  newUserId: bruno.getEnvironmentVar("newUserId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("User updated successfully", function() {
+    expect(res.getBody().email).to.equal("usuario-bruno-actualizado@test.com");
+    expect(res.getBody().role).to.equal("CLIENT_ADMIN");
+  });
+}

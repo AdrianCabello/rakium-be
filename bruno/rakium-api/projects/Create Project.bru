@@ -1,0 +1,67 @@
+meta {
+  name: Create Project
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/projects
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Proyecto Bruno Test",
+    "description": "Proyecto creado desde Bruno para testing",
+    "category": "ESTACIONES",
+    "clientId": "{{clientId}}",
+    "githubUrl": "https://github.com/usuario/proyecto-bruno",
+    "demoUrl": "https://demo-bruno.com",
+    "technologies": "React, TypeScript, Node.js, PostgreSQL",
+    "status": "DRAFT",
+    "type": "LANDING",
+    "longDescription": "Descripción detallada del proyecto creado desde Bruno",
+    "country": "México",
+    "state": "Ciudad de México",
+    "city": "Benito Juárez",
+    "area": "500m²",
+    "duration": "3 meses",
+    "challenge": "Desafío del proyecto",
+    "solution": "Solución implementada",
+    "order": 999
+  }
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  clientId: bruno.getEnvironmentVar("clientId")
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Project created successfully", function() {
+    expect(res.getBody().id).to.be.a('string');
+    expect(res.getBody().name).to.equal("Proyecto Bruno Test");
+    expect(res.getBody().githubUrl).to.equal("https://github.com/usuario/proyecto-bruno");
+    expect(res.getBody().demoUrl).to.equal("https://demo-bruno.com");
+    expect(res.getBody().technologies).to.be.an('array');
+    expect(res.getBody().technologies).to.include("React");
+  });
+  
+  test("Store project ID for later use", function() {
+    bruno.setEnvironmentVar("projectId", res.getBody().id);
+  });
+}

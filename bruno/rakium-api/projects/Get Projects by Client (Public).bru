@@ -1,0 +1,27 @@
+meta {
+  name: Get Projects by Client (Public)
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/projects/client/{{clientId}}?page=1&limit=10
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  clientId: bruno.getEnvironmentVar("clientId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has pagination structure", function() {
+    expect(res.getBody().data).to.be.an('array');
+    expect(res.getBody().pagination).to.be.an('object');
+  });
+}

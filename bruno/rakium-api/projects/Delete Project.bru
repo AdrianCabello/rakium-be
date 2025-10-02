@@ -1,0 +1,31 @@
+meta {
+  name: Delete Project
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/projects/{{projectId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+vars:pre-request {
+  baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
+  projectId: bruno.getEnvironmentVar("projectId")
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Project deleted successfully", function() {
+    expect(res.getBody().message).to.include("deleted");
+  });
+}
