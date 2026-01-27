@@ -1,0 +1,64 @@
+# Dockerfile temporal para importar dump en el primer despliegue
+# Usar solo para la primera importación, luego volver al Dockerfile original
+# IMPORTANTE: Asegúrate de que el archivo dumps/railway-dump-20260127-201435.sql esté en el repositorio
+
+# Usar imagen base de Node.js 18
+FROM node:18-alpine AS builder
+
+# Instalar dependencias del sistema necesarias para Prisma y Sharp
+RUN apk add --no-cache libc6-compat openssl
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de configuración de dependencias
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Instalar dependencias
+RUN npm ci
+
+# Generar cliente Prisma
+RUN npx prisma generate
+
+# Copiar el resto del código fuente
+COPY . .
+
+# Construir la aplicación
+RUN npm run build
+
+# Imagen de producción
+FROM node:18-alpine AS runner
+
+# Instalar dependencias del sistema necesarias para Prisma, Sharp y PostgreSQL client
+RUN apk add --no-cache libc6-compat openssl postgresql-client
+
+WORKDIR /app
+
+# Configurar usuario no root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nestjs
+
+# Copiar archivos necesarios desde builder
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copiar el dump (debe existir en el repositorio)
+# Si el archivo no existe, el build fallará aquí - asegúrate de que esté en el repo
+COPY --chown=nestjs:nodejs dumps/railway-dump-20260127-201435.sql /tmp/dump.sql
+
+# Cambiar a usuario no root
+USER nestjs
+
+# Exponer puerto
+EXPOSE 3000
+
+# Variables de entorno por defecto
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Comando de inicio que importa el dump y luego ejecuta migraciones
+CMD ["sh", "-c", "echo 'Importando dump de Railway...' && psql \"$DATABASE_URL\" < /tmp/dump.sql && echo '✅ Dump importado exitosamente' && rm -f /tmp/dump.sql && npx prisma migrate deploy && node dist/src/main"]
