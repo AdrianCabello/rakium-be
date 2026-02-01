@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { UploadModule } from './upload/upload.module';
 import { VideosModule } from './videos/videos.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { VideosModule } from './videos/videos.module';
       isGlobal: true,
     }),
     PrismaModule,
+    CategoriesModule,
     ClientsModule,
     ProjectsModule,
     UsersModule,

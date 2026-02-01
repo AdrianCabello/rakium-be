@@ -22,7 +22,6 @@ export class UploadService {
     this.secretAccessKey = this.configService.get<string>('BACKBLAZE_SECRET_ACCESS_KEY');
     
     if (!this.accessKeyId || !this.secretAccessKey || !this.bucketName) {
-      console.warn('⚠️  Backblaze B2 no está configurado. Las variables de entorno BACKBLAZE_ACCESS_KEY_ID, BACKBLAZE_SECRET_ACCESS_KEY y BACKBLAZE_BUCKET_NAME son requeridas.');
       return;
     }
     
@@ -91,8 +90,6 @@ export class UploadService {
       // Retornar la URL pública del archivo
       return `https://${this.bucketName}.s3.us-east-005.backblazeb2.com/${fileName}`;
     } catch (error) {
-      console.error('Error de Backblaze B2:', error);
-      
       if (error.name === 'InvalidAccessKeyId') {
         throw new BadRequestException('Credenciales de Backblaze B2 inválidas. Verifica BACKBLAZE_ACCESS_KEY_ID y BACKBLAZE_SECRET_ACCESS_KEY');
       }
@@ -143,7 +140,6 @@ export class UploadService {
         await this.s3Client.send(command);
         urls[variantName] = `https://${this.bucketName}.s3.us-east-005.backblazeb2.com/${fileName}`;
       } catch (error) {
-        console.error(`Error subiendo variante ${variantName}:`, error);
         throw new BadRequestException(`Error al subir la variante ${variantName}: ${error.message}`);
       }
     }

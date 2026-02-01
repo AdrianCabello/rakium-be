@@ -67,7 +67,7 @@ export class UpdateProjectDto {
     example: ProjectCategory.ESTACIONES,
     required: false,
   })
-  @IsEnum(ProjectCategory, { message: 'category must be one of the following values: ESTACIONES, TIENDAS, COMERCIALES' })
+  @IsEnum(ProjectCategory, { message: 'category must be one of the following values: ESTACIONES, TIENDAS, COMERCIALES, SITIO_WEB' })
   @IsOptional()
   @Transform(({ value }) => value === '' ? null : value)
   category?: ProjectCategory;

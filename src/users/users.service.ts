@@ -1,6 +1,7 @@
 import { Injectable, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
 import { getPaginationParams, createPaginatedResponse, buildUserSearchFilter } from '../utils/pagination.util';
 import * as bcrypt from 'bcrypt';
@@ -113,7 +114,7 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: Partial<CreateUserDto>) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const data: any = { ...updateUserDto };
     
     if (updateUserDto.password) {
@@ -136,9 +137,7 @@ export class UsersService {
   async validateUser(email: string, password: string) {
     try {
       const user = await this.findByEmail(email);
-      console.log('Found user:', { email: user.email, role: user.role });
       const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-      console.log('Password validation result:', isPasswordValid);
 
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid credentials');

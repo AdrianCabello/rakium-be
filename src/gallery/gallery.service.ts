@@ -218,9 +218,8 @@ export class GalleryService {
     if (gallery.url) {
       try {
         await this.uploadService.deleteFile(gallery.url);
-      } catch (error) {
-        // Log error but don't fail the operation
-        console.error('Error deleting file from Backblaze:', error);
+      } catch {
+        // Ignore delete errors so the gallery record can still be removed
       }
     }
 

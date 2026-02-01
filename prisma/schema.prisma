@@ -33,6 +33,18 @@ model Client {
   @@map("Client")
 }
 
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  value     String    @unique
+  orderNum  Int       @default(0) @map("order_num")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  projects  Project[]
+
+  @@map("Category")
+}
+
 model Project {
   id              String           @id @default(uuid())
   name            String
@@ -53,6 +65,7 @@ model Project {
   date            String?
   url             String?
   clientId        String           @map("client_id")
+  categoryId      String?          @map("category_id")
   challenge       String?
   solution        String?
   createdAt       DateTime         @default(now()) @map("created_at")
@@ -78,6 +91,7 @@ model Project {
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])
   beforeImage     Gallery?         @relation("BeforeImage", fields: [beforeImageId], references: [id])
   client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  categoryRef     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   creator         User?            @relation("CreatedBy", fields: [createdBy], references: [id])
 
   @@map("projects")
@@ -125,6 +139,10 @@ enum ProjectType {
   ECOMMERCE
   INMOBILIARIA
   CUSTOM
+  PORTFOLIO
+  BLOG
+  CORPORATIVO
+  ONE_PAGE
 }
 
 enum ProjectStatus {
@@ -137,4 +155,5 @@ enum ProjectCategory {
   ESTACIONES
   TIENDAS
   COMERCIALES
+  SITIO_WEB
 }

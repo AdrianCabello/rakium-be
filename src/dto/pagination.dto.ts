@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, Min, Max } from 'class-validator';
+import { Allow, IsOptional, IsInt, Min, Max, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -37,6 +37,16 @@ export class PaginationDto {
   })
   @IsOptional()
   search?: string;
+
+  @ApiProperty({
+    description: 'Filter by client ID (used by projects list)',
+    example: '002a5177-2d27-4c0b-936d-dbb2d317663a',
+    required: false,
+  })
+  @Allow()
+  @IsOptional()
+  @IsString()
+  clientId?: string;
 }
 
 export class PaginatedResponseDto<T> {

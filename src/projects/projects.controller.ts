@@ -3,6 +3,7 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from '../dto/pagination.dto';
+import { ProjectsQueryDto } from './dto/projects-query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 
@@ -88,9 +89,15 @@ export class ProjectsController {
   @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
   @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'estación' })
   @Get()
-  findAll(@Query() paginationDto: PaginationDto, @Query('clientId') clientId?: string) {
-    if (clientId) {
-      return this.projectsService.findByClient(clientId, paginationDto);
+  findAll(@Query() query: ProjectsQueryDto) {
+    const paginationDto: PaginationDto = {
+      page: query.page ?? 1,
+      limit: query.limit ?? 10,
+      search: query.search,
+      clientId: query.clientId,
+    };
+    if (query.clientId) {
+      return this.projectsService.findByClient(query.clientId, paginationDto);
     }
     return this.projectsService.findAll(paginationDto);
   }

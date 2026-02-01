@@ -34,8 +34,15 @@ export function createPaginatedResponse<T>(
   };
 }
 
+/** Considera "sin búsqueda" cuando search es undefined, null, vacío, o el string "undefined"/"null" */
+function isEmptySearch(search?: string | null): boolean {
+  if (search == null) return true;
+  const s = String(search).trim().toLowerCase();
+  return s === '' || s === 'undefined' || s === 'null';
+}
+
 export function buildSearchFilter(search?: string) {
-  if (!search) return {};
+  if (isEmptySearch(search)) return {};
 
   return {
     OR: [
@@ -62,7 +69,7 @@ export function buildSearchFilter(search?: string) {
 }
 
 export function buildUserSearchFilter(search?: string) {
-  if (!search) return {};
+  if (isEmptySearch(search)) return {};
 
   return {
     OR: [
@@ -77,7 +84,7 @@ export function buildUserSearchFilter(search?: string) {
 }
 
 export function buildClientSearchFilter(search?: string) {
-  if (!search) return {};
+  if (isEmptySearch(search)) return {};
 
   return {
     OR: [
