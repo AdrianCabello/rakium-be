@@ -21,10 +21,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  // CORS: permitir frontend en producción (rakium.dev) y desarrollo
+  // CORS: permitir frontends en producción y desarrollo
   const allowedOrigins = [
     'https://rakium.dev',
     'https://www.rakium.dev',
+    'https://kamak.com.ar',
+    'https://www.kamak.com.ar',
     'https://adriancabello.github.io',
     'http://localhost:4200',
     'http://localhost:4201',

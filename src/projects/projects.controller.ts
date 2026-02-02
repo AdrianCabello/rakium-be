@@ -112,6 +112,7 @@ export class ProjectsController {
     return this.projectsService.findFeatured(paginationDto);
   }
 
+  /** Rutas con prefijo "client" DEBEN ir antes de @Get(':id') para que NestJS no capture "client" como id. */
   @Get('client/:clientId/public')
   @Public()
   @ApiOperation({ summary: 'Get published projects by client (public, no auth)' })
