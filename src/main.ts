@@ -25,6 +25,8 @@ async function bootstrap() {
   const allowedOrigins = [
     'https://rakium.dev',
     'https://www.rakium.dev',
+    'https://lautarovulcano.com',
+    'https://www.lautarovulcano.com',
     'https://kamak.com.ar',
     'https://www.kamak.com.ar',
     'https://adriancabello.github.io',
