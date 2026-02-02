@@ -112,6 +112,30 @@ export class ProjectsController {
     return this.projectsService.findFeatured(paginationDto);
   }
 
+  @Get('client/:clientId/public')
+  @Public()
+  @ApiOperation({ summary: 'Get published projects by client (public, no auth)' })
+  @ApiParam({ name: 'clientId', description: 'Client ID' })
+  @ApiResponse({ status: 200, description: 'Paginated published projects for client' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results' })
+  async findPublicByClientId(@Param('clientId') clientId: string, @Query() paginationDto: PaginationDto) {
+    return this.projectsService.findPublicByClient(clientId, paginationDto);
+  }
+
+  @Get('client/:clientId')
+  @Public()
+  @ApiOperation({ summary: 'Get projects by client with pagination' })
+  @ApiParam({ name: 'clientId', description: 'Client ID' })
+  @ApiResponse({ status: 200, description: 'Paginated client project list' })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
+  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'estación' })
+  async findAllByClientId(@Param('clientId') clientId: string, @Query() paginationDto: PaginationDto) {
+    return this.projectsService.findAllByClientId(clientId, paginationDto);
+  }
+
   @ApiOperation({ summary: 'Get a project by ID' })
   @ApiResponse({ status: 200, description: 'Project found' })
   @ApiResponse({ status: 404, description: 'Project not found' })
@@ -153,18 +177,6 @@ export class ProjectsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
-  }
-
-  @Get('client/:clientId')
-  @Public()
-  @ApiOperation({ summary: 'Get projects by client with pagination' })
-  @ApiParam({ name: 'clientId', description: 'Client ID' })
-  @ApiResponse({ status: 200, description: 'Paginated client project list' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
-  @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
-  @ApiQuery({ name: 'search', required: false, description: 'Search term to filter results', example: 'estación' })
-  async findAllByClientId(@Param('clientId') clientId: string, @Query() paginationDto: PaginationDto) {
-    return this.projectsService.findAllByClientId(clientId, paginationDto);
   }
 
   @Patch('reorder')

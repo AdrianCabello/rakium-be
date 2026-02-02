@@ -101,7 +101,7 @@ export class ProjectsService {
   }
 
   async findOne(id: string) {
-    return this.prisma.project.findUnique({
+    const project = await this.prisma.project.findUnique({
       where: { id },
       include: {
         client: true,
@@ -117,6 +117,10 @@ export class ProjectsService {
         },
       },
     });
+    if (!project) {
+      throw new NotFoundException(`No se encontró ningún proyecto con el ID: ${id}`);
+    }
+    return project;
   }
 
   async findPublishedProject(id: string) {
@@ -312,9 +316,10 @@ export class ProjectsService {
             }
           }
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [
+          { order: 'asc' },
+          { createdAt: 'desc' },
+        ],
         skip,
         take,
       }),
