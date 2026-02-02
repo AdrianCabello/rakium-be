@@ -72,6 +72,7 @@ model Project {
   updatedAt       DateTime         @updatedAt @map("updated_at")
   beforeImageId   String?          @unique @map("before_image_id")
   afterImageId    String?          @unique @map("after_image_id")
+  coverImageId    String?          @unique @map("cover_image_id")
   createdBy       String?
   endDate         DateTime?        @map("end_date")
   startDate       DateTime?        @map("start_date")
@@ -90,6 +91,7 @@ model Project {
   videos          Video[]
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])
   beforeImage     Gallery?         @relation("BeforeImage", fields: [beforeImageId], references: [id])
+  coverImage      Gallery?         @relation("CoverImage", fields: [coverImageId], references: [id])
   client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   categoryRef     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   creator         User?            @relation("CreatedBy", fields: [createdBy], references: [id])
@@ -110,6 +112,7 @@ model Gallery {
   project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   afterImageOf  Project? @relation("AfterImage")
   beforeImageOf Project? @relation("BeforeImage")
+  coverImageOf  Project? @relation("CoverImage")
 
   @@map("Gallery")
 }

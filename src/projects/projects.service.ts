@@ -58,6 +58,7 @@ export class ProjectsService {
       demoUrl: createProjectDto.demoUrl,
       technologies: createProjectDto.technologies as unknown as Prisma.JsonValue,
       ...(userId && { creator: { connect: { id: userId } } }),
+      ...(createProjectDto.coverImageId && { coverImage: { connect: { id: createProjectDto.coverImageId } } }),
     };
 
     // Filtrar campos undefined/null
@@ -105,6 +106,7 @@ export class ProjectsService {
       where: { id },
       include: {
         client: true,
+        coverImage: { select: { id: true, url: true } },
         gallery: {
           orderBy: {
             order: 'asc',
@@ -310,6 +312,7 @@ export class ProjectsService {
               email: true
             }
           },
+          coverImage: { select: { id: true, url: true } },
           gallery: {
             orderBy: {
               order: 'asc'
@@ -375,6 +378,12 @@ export class ProjectsService {
       demoUrl: updateProjectDto.demoUrl,
       technologies: updateProjectDto.technologies as unknown as Prisma.JsonValue,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
+      ...(updateProjectDto.coverImageId !== undefined &&
+        (updateProjectDto.coverImageId === null || updateProjectDto.coverImageId === ''
+          ? { coverImage: { disconnect: true } }
+          : updateProjectDto.coverImageId
+            ? { coverImage: { connect: { id: updateProjectDto.coverImageId } } }
+            : {})),
     };
 
     // Filtrar campos undefined (pero permitir null explícito)
@@ -449,6 +458,12 @@ export class ProjectsService {
       technologies: updateProjectDto.technologies as unknown as Prisma.JsonValue,
       order: newOrder,
       ...(updateProjectDto.clientId && { client: { connect: { id: updateProjectDto.clientId } } }),
+      ...(updateProjectDto.coverImageId !== undefined &&
+        (updateProjectDto.coverImageId === null || updateProjectDto.coverImageId === ''
+          ? { coverImage: { disconnect: true } }
+          : updateProjectDto.coverImageId
+            ? { coverImage: { connect: { id: updateProjectDto.coverImageId } } }
+            : {})),
     };
 
     // Filtrar campos undefined
