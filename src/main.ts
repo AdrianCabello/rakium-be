@@ -32,21 +32,28 @@ async function bootstrap() {
     'https://kamak.com.ar',
     'https://www.kamak.com.ar',
     'https://adriancabello.github.io',
-    'http://localhost:4200',
-    'http://localhost:4201',
-    'http://127.0.0.1:4200',
   ];
   const extraOrigins = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? [];
   const origins = [...new Set([...allowedOrigins, ...extraOrigins])];
 
+  const isLocalhost = (origin: string) =>
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
   app.enableCors({
     origin: (origin, callback) => {
-      // Permitir requests sin Origin (ej. Postman, servidor a servidor) y orígenes whitelisteados
-      if (!origin || origins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(null, false);
+      // Sin Origin (Postman, curl, servidor a servidor)
+      if (!origin) {
+        return callback(null, true);
       }
+      // Cualquier localhost en cualquier puerto (desarrollo)
+      if (isLocalhost(origin)) {
+        return callback(null, true);
+      }
+      // Orígenes explícitos (producción)
+      if (origins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(null, false);
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
