@@ -68,7 +68,7 @@ export class GalleryService {
       throw new BadRequestException('No se pueden agregar más de 10 imágenes a la galería');
     }
 
-    // Subir archivo a Backblaze B2 con optimización automática
+    // Subir archivo al storage configurado con optimización automática
     const folder = `projects/${projectId}/gallery`;
     const url = await this.uploadService.uploadFile(file, folder, true); // optimize = true
 
@@ -214,7 +214,7 @@ export class GalleryService {
       throw new NotFoundException(`Gallery item with ID ${id} not found in project ${projectId}`);
     }
 
-    // Eliminar archivo de Backblaze B2 si existe
+    // Eliminar archivo del storage configurado si existe
     if (gallery.url) {
       try {
         await this.uploadService.deleteFile(gallery.url);

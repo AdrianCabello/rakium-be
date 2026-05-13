@@ -1,152 +1,61 @@
-# Rakium API - Colección de Bruno
+# Rakium API Bruno collection
 
-Esta colección de Bruno contiene todos los endpoints de la API de Rakium para testing y desarrollo.
+This Bruno collection contains the main Rakium API endpoints for local and production smoke testing.
 
-## 🚀 Configuración Inicial
+## Setup
 
-### 1. Importar la colección
-1. Abre Bruno
-2. Haz clic en "Import Collection"
-3. Selecciona la carpeta `bruno/rakium-api`
+1. Import `bruno/rakium-api` into Bruno.
+2. Select the `Local` or `Production` environment.
+3. Run `Auth / Login` first.
+4. The login request stores the bearer token in `authToken`.
+5. Run list endpoints to populate IDs such as `clientId`, `projectId`, `galleryId`, and `videoId`.
 
-### 2. Configurar variables de entorno
-1. Selecciona el entorno "Production" o "Local"
-2. Ejecuta primero el endpoint "Login" para obtener el token de autenticación
-3. El token se guardará automáticamente en la variable `authToken`
+## Endpoint groups
 
-### 3. Obtener IDs necesarios
-1. Ejecuta "Get All Clients" para obtener un `clientId`
-2. Los IDs se guardarán automáticamente en las variables de entorno
+### Auth
 
-## 📋 Estructura de la Colección
+- `Login`: public login endpoint.
+- `Get Profile`: authenticated profile endpoint.
+- `Test Auth`: authenticated token check.
 
-### 🔐 Auth (3 endpoints)
-- **Login** - Autenticación y obtención de token
-- **Get Profile** - Información del usuario autenticado
-- **Test Auth** - Verificar autenticación
+### Projects
 
-### 📁 Projects (10 endpoints)
-- **Get All Projects** - Listar todos los proyectos con paginación
-- **Create Project** - Crear nuevo proyecto (incluye nuevos campos: githubUrl, demoUrl, technologies)
-- **Get Project by ID** - Obtener proyecto específico
-- **Update Project** - Actualizar proyecto
-- **Get Featured Projects** - Proyectos destacados
-- **Get Published Project (Public)** - Proyecto publicado (público)
-- **Get Projects by Client (Public)** - Proyectos por cliente (público)
-- **Reorder Projects** - Reordenar proyectos
-- **Set Project Order** - Establecer orden específico
-- **Delete Project** - Eliminar proyecto
+- Private management endpoints require bearer auth.
+- Public routes only expose published project data.
+- Reorder and order update requests require bearer auth.
 
-### 👥 Clients (5 endpoints)
-- **Get All Clients** - Listar todos los clientes
-- **Create Client** - Crear nuevo cliente
-- **Get Client by ID** - Obtener cliente específico
-- **Update Client** - Actualizar cliente
-- **Delete Client** - Eliminar cliente
+### Clients and Users
 
-### 👤 Users (5 endpoints)
-- **Get All Users** - Listar todos los usuarios
-- **Create User** - Crear nuevo usuario
-- **Get User by ID** - Obtener usuario específico
-- **Update User** - Actualizar usuario
-- **Delete User** - Eliminar usuario
+- All client and user management endpoints require bearer auth.
+- User responses are expected to omit `passwordHash`.
 
-### 🖼️ Gallery (7 endpoints)
-- **Get Gallery Images** - Listar imágenes de galería
-- **Get Public Gallery** - Galería pública
-- **Add Gallery Image** - Agregar imagen a galería
-- **Get Gallery Image by ID** - Obtener imagen específica
-- **Update Gallery Image** - Actualizar imagen
-- **Reorder Gallery Images** - Reordenar imágenes
-- **Delete Gallery Image** - Eliminar imagen
+### Gallery
 
-### 🎥 Videos (7 endpoints)
-- **Get All Videos** - Listar todos los videos
-- **Get Public Videos** - Videos públicos
-- **Add Video** - Agregar video de YouTube
-- **Get Video by ID** - Obtener video específico
-- **Update Video** - Actualizar video
-- **Reorder Videos** - Reordenar videos
-- **Delete Video** - Eliminar video
+- Public gallery routes only return gallery data for published projects.
+- Gallery create, upload, update, reorder, and delete require bearer auth.
 
-### 📤 Upload (5 endpoints)
-- **Test Upload (Public)** - Upload de prueba (público)
-- **Upload File** - Subir archivo a Backblaze B2
-- **Upload Image with Variants** - Subir imagen con variantes optimizadas
-- **Upload to Project Gallery** - Subir directamente a galería de proyecto
-- **Upload Image Variants** - Subir imagen con múltiples variantes
+### Videos
 
-## 🆕 Nuevos Campos en Projects
+- Public video routes only return videos for published projects.
+- Video create, update, reorder, and delete require bearer auth.
 
-Los proyectos ahora incluyen los siguientes campos nuevos:
+### Upload
 
-### `githubUrl` (string, nullable)
-- URL del repositorio de GitHub del proyecto
-- Ejemplo: `"https://github.com/usuario/proyecto"`
+- `Test Upload`: protected upload test endpoint.
+- `Upload File`: uploads to the configured storage provider.
+- `Upload Image with Variants`: protected image variants endpoint.
+- `Upload to Project Gallery`: protected project gallery upload.
+- `Upload Image Variants`: protected variants endpoint.
 
-### `demoUrl` (string, nullable)
-- URL de demostración del proyecto
-- Ejemplo: `"https://demo-proyecto.com"`
+## URLs
 
-### `technologies` (JSON array, nullable)
-- Array de tecnologías utilizadas (funciona como chips)
-- **Entrada**: `"React, TypeScript, Node.js"`
-- **Salida**: `["React", "TypeScript", "Node.js"]`
+- Production: `https://rakium-be-production.up.railway.app`
+- Local: `http://localhost:3000`
+- Swagger: `{{baseUrl}}/api`
 
-## 🔄 Flujo de Testing Recomendado
+## Notes
 
-1. **Autenticación**
-   - Ejecutar "Login" para obtener token
-
-2. **Configuración inicial**
-   - Ejecutar "Get All Clients" para obtener clientId
-   - Ejecutar "Get All Projects" para ver proyectos existentes
-
-3. **Testing CRUD completo**
-   - Crear proyecto con nuevos campos
-   - Actualizar proyecto
-   - Agregar imágenes a galería
-   - Agregar videos
-   - Probar endpoints públicos
-
-4. **Testing de upload**
-   - Probar upload de archivos
-   - Probar upload con variantes
-   - Probar upload directo a galería
-
-5. **Limpieza**
-   - Eliminar recursos creados durante las pruebas
-
-## 🌐 URLs de la API
-
-- **Producción**: `https://rakium-be-production.up.railway.app`
-- **Local**: `http://localhost:3000`
-- **Swagger**: `https://rakium-be-production.up.railway.app/api`
-
-## 📝 Notas Importantes
-
-- Todos los endpoints que requieren autenticación usan Bearer Token
-- Los endpoints marcados como "Public" no requieren autenticación
-- Las variables de entorno se actualizan automáticamente durante las pruebas
-- Los archivos de prueba deben estar en la carpeta raíz del proyecto
-- La colección incluye tests automatizados para validar respuestas
-
-## 🐛 Troubleshooting
-
-### Error 401 (Unauthorized)
-- Verificar que el token de autenticación esté configurado
-- Ejecutar "Login" nuevamente para obtener un token fresco
-
-### Error 404 (Not Found)
-- Verificar que los IDs en las variables de entorno sean correctos
-- Ejecutar los endpoints de "Get All" para obtener IDs válidos
-
-### Error 400 (Bad Request)
-- Verificar que el body de la petición tenga el formato correcto
-- Revisar que los campos requeridos estén presentes
-
----
-
-**Fecha de creación**: 17 de Agosto, 2024
-**Versión de la API**: 1.0
-**Última actualización**: Incluye nuevos campos githubUrl, demoUrl y technologies
+- Endpoints marked public in the collection do not send a token.
+- Every other endpoint must use `Authorization: Bearer {{authToken}}`.
+- Upload requests need `test-image.png` available where Bruno can read it.
+- Keep production secrets out of collection files and environment commits.
