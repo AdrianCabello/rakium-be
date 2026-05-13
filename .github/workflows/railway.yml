@@ -12,7 +12,30 @@ env:
   RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
 jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --runInBand
+
+      - name: Build
+        run: npm run build
+
   deploy:
+    if: github.event_name == 'push'
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,8 +54,6 @@ jobs:
         run: npm i -g @railway/cli
 
       - name: Deploy to Railway
-        run: railway up
+        run: railway up --service rakium-be --environment production
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} 
-
-    
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
