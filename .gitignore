@@ -49,8 +49,6 @@ lerna-debug.log*
 # Database dumps
 /dumps
 *.sql
-# Excepción: permitir el dump de Railway para importación en Dokploy
-!/dumps/railway-dump-20260127-201435.sql
 
 # Runtime data
 pids
