@@ -23,6 +23,7 @@
     "assign-lautarovulcano": "ts-node scripts/assign-lautarovulcano-client.ts",
     "storage:plan-gcs-migration": "ts-node scripts/plan-backblaze-to-gcs-migration.ts",
     "smoke:api": "ts-node scripts/smoke-api.ts",
+    "dokploy:preflight": "ts-node scripts/dokploy-preflight.ts",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
