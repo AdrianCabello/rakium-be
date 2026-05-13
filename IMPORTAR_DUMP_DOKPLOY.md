@@ -1,8 +1,12 @@
 # Guía Rápida: Importar Dump en Dokploy
 
-## ⚠️ Si recibes "No such container" - Usa el Método del Dockerfile
+## Seguridad de dumps
 
-Si el terminal de Dokploy no está disponible o el contenedor no está corriendo, **usa el método del Dockerfile temporal** (Método 2 abajo). Es más confiable y automático.
+Nunca subas dumps ni credenciales reales al repositorio. Si una credencial real quedó en Git o en documentación compartida, rótala antes de usar el entorno en producción.
+
+## ⚠️ Si recibes "No such container"
+
+Si el terminal de Dokploy no está disponible o el contenedor no está corriendo, usa un contenedor temporal con acceso a la red interna de Dokploy. No copies dumps dentro de la imagen de la aplicación.
 
 ## Método 1: Usar el Terminal de Dokploy (Solo si el contenedor está corriendo)
 
@@ -10,7 +14,7 @@ Si el terminal de Dokploy no está disponible o el contenedor no está corriendo
 
 1. En el panel de Dokploy, ve a tu aplicación **Backend**
 2. Busca la opción **"Terminal"**, **"Console"**, **"Execute"** o **"Run Command"**
-3. Si hay opción de subir archivos, sube: `./dumps/railway-dump-20260127-201435.sql`
+3. Si hay opción de subir archivos, sube tu dump local: `./dumps/railway-dump-YYYYMMDD-HHMMSS.sql`
    - O copia el contenido del archivo y créalo en el servidor
 
 ### Paso 2: Ejecutar el comando de importación
@@ -22,52 +26,42 @@ Desde el terminal de Dokploy, ejecuta:
 apk add --no-cache postgresql-client
 
 # Importar el dump
-psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < /ruta/al/railway-dump-20260127-201435.sql
+psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /ruta/al/railway-dump-YYYYMMDD-HHMMSS.sql
 ```
 
 ## Método 2: Dockerfile Temporal (RECOMENDADO - Más Confiable)
 
 Este método importa el dump automáticamente durante el build. Es la mejor opción si el terminal no está disponible:
 
-### Paso 1: Asegurarte de que el dump esté en el repositorio
+### Paso 1: Mantener el dump fuera del repositorio
 
-El dump ya está agregado al staging. Solo necesitas hacer commit y push:
+El dump debe existir sólo en tu máquina o en el servidor temporalmente:
 
 ```bash
-# Verificar que el dump esté listo
-git status dumps/railway-dump-20260127-201435.sql
-
-# Hacer commit y push
-git commit -m "Agregar dump de Railway para importación en Dokploy"
-git push
+ls -lh ./dumps/railway-dump-YYYYMMDD-HHMMSS.sql
 ```
 
-### Paso 2: Configurar Dokploy para usar el Dockerfile temporal
+### Paso 2: Usar un contenedor temporal de PostgreSQL client
 
-1. En Dokploy, ve a la configuración de tu aplicación **Backend**
-2. Busca **"Dockerfile Path"** o **"Build Settings"**
-3. Cambia el Dockerfile Path de `Dockerfile` a: **`Dockerfile.with-dump`**
-4. Guarda los cambios
+1. Sube el dump al servidor por un canal seguro temporal.
+2. Ejecuta un contenedor `postgres:16-alpine` en la misma red interna de Dokploy.
+3. Importa usando la `DATABASE_URL` real configurada como variable de entorno o pegada sólo en la terminal segura.
 
-### Paso 3: Desplegar
+```bash
+docker run --rm -i \
+  --network dokploy_default \
+  -v /tmp:/dumps \
+  postgres:16-alpine \
+  psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /dumps/railway-dump-YYYYMMDD-HHMMSS.sql
+```
 
-1. Haz clic en **"Deploy"** o **"Redeploy"** en Dokploy
-2. Dokploy construirá la imagen con el Dockerfile temporal
-3. El dump se importará automáticamente al iniciar el contenedor
-4. Revisa los logs para ver el mensaje: `✅ Dump importado exitosamente`
+### Paso 3: Limpiar después de la importación
 
-### Paso 4: Revertir después de la importación
+Una vez que verifiques que el dump se importó correctamente, elimina el dump del servidor:
 
-Una vez que veas en los logs que el dump se importó correctamente:
-
-1. En Dokploy, cambia el Dockerfile Path de vuelta a: **`Dockerfile`**
-2. Haz un nuevo deploy (esto usará el Dockerfile normal sin el dump)
-3. Opcional: Elimina el dump del repositorio después:
-   ```bash
-   git rm dumps/railway-dump-20260127-201435.sql
-   git commit -m "Eliminar dump después de importación exitosa"
-   git push
-   ```
+```bash
+rm /tmp/railway-dump-YYYYMMDD-HHMMSS.sql
+```
 
 ## Verificar la Importación
 
@@ -75,25 +69,25 @@ Después de importar, verifica que los datos estén correctos. Desde el terminal
 
 ```bash
 # Conectar a la base de datos y verificar
-psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' -c "SELECT COUNT(*) FROM \"Client\";"
-psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' -c "SELECT COUNT(*) FROM projects;"
+psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' -c "SELECT COUNT(*) FROM \"Client\";"
+psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' -c "SELECT COUNT(*) FROM projects;"
 ```
 
 O desde tu aplicación NestJS, puedes verificar en los logs que las tablas tengan datos.
 
 ## Credenciales de la Base de Datos
 
-- **User:** `rakium_user`
-- **Password:** `Troyanos22`
+- **User:** `usuario`
+- **Password:** `password`
 - **Database:** `rakium_production`
-- **Host (interno):** `rakium-database-nnbukr`
+- **Host (interno):** `dokploy-db-host`
 - **Port:** `5432`
-- **Connection URL:** `postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production`
+- **Connection URL:** `postgresql://usuario:password@dokploy-db-host:5432/rakium_production`
 
 ## Notas Importantes
 
 ⚠️ **El dump sobrescribirá todos los datos existentes** en la base de datos de Dokploy
 
-✅ El archivo de dump está en: `./dumps/railway-dump-20260127-201435.sql` (94KB)
+✅ Los dumps deben mantenerse fuera de Git y compartirse sólo por canales seguros temporales
 
 ✅ Después de importar, asegúrate de que tu aplicación Backend tenga configurada la `DATABASE_URL` correcta en las variables de entorno de Dokploy

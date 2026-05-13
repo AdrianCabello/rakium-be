@@ -13,8 +13,15 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}🗄️  Dump de Base de Datos Railway${NC}"
 echo ""
 
-# Variables de Railway (desde .env)
-RAILWAY_DB_URL="postgresql://postgres:ZHnpiYGjszYgImLgIPNSCZFAhrIFdbgI@turntable.proxy.rlwy.net:15116/railway"
+# Railway database URL must be provided by the caller.
+# Example:
+#   RAILWAY_DATABASE_URL='postgresql://user:password@host:port/database' ./scripts/dump-railway-db.sh
+RAILWAY_DB_URL="${RAILWAY_DATABASE_URL:-${DATABASE_URL:-}}"
+
+if [ -z "$RAILWAY_DB_URL" ]; then
+    echo "Error: set RAILWAY_DATABASE_URL before running this script."
+    exit 1
+fi
 
 # Nombre del archivo de dump
 DUMP_FILE="railway-dump-$(date +%Y%m%d-%H%M%S).sql"
