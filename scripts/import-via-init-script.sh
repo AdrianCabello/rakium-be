@@ -14,7 +14,14 @@ echo -e "${GREEN}📥 Importar Dump - Método Alternativo${NC}"
 echo ""
 
 # Verificar que tenemos el dump
-DUMP_FILE="./dumps/railway-dump-20260127-201435.sql"
+DUMP_FILE="${1:-}"
+
+if [ -z "$DUMP_FILE" ]; then
+    echo -e "${RED}Error: debes indicar la ruta del dump local${NC}"
+    echo "Uso: ./scripts/import-via-init-script.sh ./dumps/railway-dump-YYYYMMDD-HHMMSS.sql"
+    exit 1
+fi
+
 if [ ! -f "$DUMP_FILE" ]; then
     echo -e "${RED}❌ Error: No se encontró el archivo de dump${NC}"
     echo "Archivo esperado: $DUMP_FILE"
@@ -59,4 +66,3 @@ echo "1. Sube el dump a Dokploy (usando un volumen o copiándolo manualmente)"
 echo "2. Conéctate al contenedor de tu aplicación Backend en Dokploy"
 echo "3. Copia el contenido de import-dump-manual.sh y ejecútalo"
 echo ""
-echo "O mejor aún, usa el método del Dockerfile.with-dump que ya configuramos."

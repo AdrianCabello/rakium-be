@@ -1,6 +1,6 @@
 # Cómo Importar el Dump en Dokploy
 
-Como `rakium-database-nnbukr` es un hostname interno de Docker, necesitas ejecutar la importación desde dentro de la red de Dokploy.
+Como el hostname de la base de datos de Dokploy suele ser interno de Docker, necesitas ejecutar la importación desde dentro de la red de Dokploy.
 
 ## Opción 1: Usar el Terminal/Console de Dokploy (Más Fácil)
 
@@ -13,7 +13,7 @@ Como `rakium-database-nnbukr` es un hostname interno de Docker, necesitas ejecut
 4. **Ejecuta el comando de importación:**
    ```bash
    # Si tienes psql disponible en el contenedor
-   psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < /ruta/al/dump.sql
+   psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /ruta/al/dump.sql
    
    # O usando el cliente de Prisma (si está disponible)
    npx prisma db execute --file /ruta/al/dump.sql --schema prisma/schema.prisma
@@ -25,13 +25,13 @@ Como `rakium-database-nnbukr` es un hostname interno de Docker, necesitas ejecut
    - Nombre: `db-import-temp`
    - Tipo: Docker Image
    - Imagen: `postgres:16-alpine`
-   - Red: Misma red que `rakium-database-nnbukr`
+   - Red: Misma red que `dokploy-db-host`
 
 2. **Sube el archivo de dump al contenedor** (usando volúmenes o upload)
 
 3. **Ejecuta el comando de importación:**
    ```bash
-   psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < /dumps/railway-dump-20260127-201435.sql
+   psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /dumps/railway-dump-YYYYMMDD-HHMMSS.sql
    ```
 
 4. **Elimina el contenedor temporal** después de la importación
@@ -49,14 +49,14 @@ cd /ruta/dokploy
 
 # Subir el dump al servidor primero
 # (desde tu máquina local)
-scp ./dumps/railway-dump-20260127-201435.sql usuario@servidor:/tmp/
+scp ./dumps/railway-dump-YYYYMMDD-HHMMSS.sql usuario@servidor:/tmp/
 
 # En el servidor, ejecutar:
 docker run --rm -i \
   --network dokploy_default \
   -v /tmp:/dumps \
   postgres:16-alpine \
-  psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < /dumps/railway-dump-20260127-201435.sql
+  psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /dumps/railway-dump-YYYYMMDD-HHMMSS.sql
 ```
 
 ## Opción 4: Usar Prisma Studio o Migraciones
@@ -68,7 +68,7 @@ Si Dokploy tiene acceso a ejecutar comandos en tu aplicación Backend:
 2. **Modifica temporalmente el Dockerfile** para importar el dump al iniciar:
    ```dockerfile
    # Agregar al final del Dockerfile antes del CMD
-   COPY dumps/railway-dump-20260127-201435.sql /tmp/dump.sql
+   # No copies dumps into Docker images. Upload the dump to the server temporarily instead.
    ```
 
 3. **Modifica el CMD** para importar antes de iniciar:
@@ -84,13 +84,12 @@ Después de importar, verifica que los datos estén correctos:
 
 ```bash
 # Desde el terminal de Dokploy o un contenedor con acceso
-psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' -c "SELECT COUNT(*) FROM \"Client\";"
-psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' -c "SELECT COUNT(*) FROM projects;"
+psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' -c "SELECT COUNT(*) FROM \"Client\";"
+psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' -c "SELECT COUNT(*) FROM projects;"
 ```
 
 ## Notas Importantes
 
 - ⚠️ **El dump sobrescribirá todos los datos existentes** en la base de datos
 - ✅ Asegúrate de tener un backup antes de importar
-- ✅ El archivo de dump está en: `./dumps/railway-dump-20260127-201435.sql`
-- ✅ Tamaño: ~94KB
+- ✅ Mantén los dumps fuera de Git y bórralos del servidor después de importar

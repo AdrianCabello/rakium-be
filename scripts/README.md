@@ -1,79 +1,68 @@
-# Scripts de Migración de Base de Datos
+# Database and QA scripts
 
-Scripts útiles para migrar datos entre Railway y Dokploy.
+Useful scripts for Railway to Dokploy database migration and backend smoke testing.
 
-## Requisitos
+## Requirements
 
-- PostgreSQL client instalado (`pg_dump` y `psql`)
-  - macOS: `brew install postgresql`
-  - Ubuntu/Debian: `sudo apt-get install postgresql-client`
-  - Windows: Descarga desde https://www.postgresql.org/download/
+- PostgreSQL client (`pg_dump` and `psql`) or Docker.
+- Node.js 18+ for the API smoke script.
 
-## Scripts Disponibles
+## `dump-railway-db.sh`
 
-### 1. `dump-railway-db.sh`
+Creates a full dump from Railway.
 
-Crea un dump completo de la base de datos de Railway.
+Usage:
 
-**Uso:**
 ```bash
-./scripts/dump-railway-db.sh
+RAILWAY_DATABASE_URL='postgresql://USER:PASSWORD@HOST:PORT/DB' ./scripts/dump-railway-db.sh
 ```
 
-**Qué hace:**
-- Conecta a la base de datos de Railway usando las credenciales del archivo `.env`
-- Crea un archivo SQL con todos los datos y estructura
-- Guarda el dump en `./dumps/railway-dump-YYYYMMDD-HHMMSS.sql`
+What it does:
 
-**Nota:** Las credenciales de Railway están hardcodeadas en el script. Si cambian, actualiza el script.
+- Reads the Railway connection string from `RAILWAY_DATABASE_URL`, falling back to `DATABASE_URL`.
+- Creates a SQL file with schema and data.
+- Writes it to `./dumps/railway-dump-YYYYMMDD-HHMMSS.sql`.
 
-### 2. `import-dump-to-dokploy.sh`
+Do not hardcode credentials in this script or in this document.
 
-Importa un dump SQL a la base de datos de Dokploy.
+## `import-dump-to-dokploy.sh`
 
-**Uso:**
+Imports a SQL dump into a Dokploy database.
+
+Usage:
+
 ```bash
-./scripts/import-dump-to-dokploy.sh [archivo-dump.sql] [DATABASE_URL_DOKPLOY]
+./scripts/import-dump-to-dokploy.sh ./dumps/railway-dump-YYYYMMDD-HHMMSS.sql 'postgresql://USER:PASSWORD@HOST:5432/DB?schema=public'
 ```
 
-**Ejemplo:**
+This can overwrite data in the destination database. Use it only after a backup and an explicit confirmation.
+
+## Complete DB migration flow
+
+1. Export from Railway with `dump-railway-db.sh`.
+2. Create the Dokploy Postgres database.
+3. Import the dump with `import-dump-to-dokploy.sh` or the internal-network flow in `DOKPLOY_DB_MIGRATION_RUNBOOK.md`.
+4. Verify table counts.
+5. Configure the backend app with the new `DATABASE_URL`.
+6. Run `npx prisma migrate deploy`.
+7. Run the API smoke test.
+
+## `smoke-api.ts`
+
+Runs an end-to-end smoke test against an already running API:
+
 ```bash
-./scripts/import-dump-to-dokploy.sh ./dumps/railway-dump-20250127-120000.sql 'postgresql://user:pass@host:5432/db?schema=public'
+SMOKE_API_URL=http://localhost:3000/api npm run smoke:api
 ```
 
-**Qué hace:**
-- Importa el dump SQL a la base de datos especificada
-- **ADVERTENCIA:** Esto sobrescribirá los datos existentes en la base de datos destino
+Useful variables:
 
-## Proceso Completo de Migración
+```bash
+SMOKE_ADMIN_EMAIL=admin@rakium.com
+SMOKE_ADMIN_PASSWORD=admin123
+SMOKE_CLIENT_ID=98280818-e80a-4305-a887-a74a3a6c2ecb
+SMOKE_PROJECT_ID=8381ce2d-084d-44e4-a2c0-9ca2d951a12a
+SMOKE_UPLOAD_FILE=./path/to/image.jpg
+```
 
-1. **Crear el dump desde Railway:**
-   ```bash
-   ./scripts/dump-railway-db.sh
-   ```
-
-2. **Crear la base de datos en Dokploy** (ver `DOKPLOY.md`)
-
-3. **Importar el dump en Dokploy:**
-   ```bash
-   ./scripts/import-dump-to-dokploy.sh ./dumps/railway-dump-YYYYMMDD-HHMMSS.sql 'DATABASE_URL_DE_DOKPLOY'
-   ```
-
-4. **Verificar que los datos se importaron correctamente**
-
-5. **Configurar la aplicación en Dokploy** con la nueva `DATABASE_URL`
-
-## Troubleshooting
-
-### Error: "pg_dump: command not found"
-Instala el cliente de PostgreSQL (ver Requisitos arriba).
-
-### Error: "connection refused" o "could not connect"
-- Verifica que las credenciales de Railway sean correctas
-- Asegúrate de que la base de datos de Railway esté accesible
-- Verifica tu conexión a internet
-
-### Error al importar: "permission denied"
-- Verifica que la `DATABASE_URL` de Dokploy sea correcta
-- Asegúrate de que el usuario tenga permisos para crear/eliminar tablas
-- Verifica que la base de datos esté accesible desde tu máquina
+The smoke test validates login, `auth/me`, private project permissions, public project routes, and upload auth. The authenticated upload is skipped unless `SMOKE_UPLOAD_FILE` is set.

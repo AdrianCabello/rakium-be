@@ -20,7 +20,7 @@ if [ -z "$1" ]; then
     echo "Uso: ./scripts/import-dump-via-dokploy.sh [archivo-dump.sql] [DATABASE_URL]"
     echo ""
     echo "Ejemplo:"
-    echo "  ./scripts/import-dump-via-dokploy.sh railway-dump.sql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production'"
+    echo "  ./scripts/import-dump-via-dokploy.sh railway-dump.sql 'postgresql://user:password@dokploy-db-host:5432/rakium_production'"
     exit 1
 fi
 

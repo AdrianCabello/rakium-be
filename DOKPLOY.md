@@ -49,6 +49,12 @@ BACKBLAZE_SECRET_ACCESS_KEY=tu-secret-access-key
 BACKBLAZE_BUCKET_NAME=nombre-de-tu-bucket
 ```
 
+#### Seguridad de Secretos
+
+- No guardes dumps, URLs de conexión, passwords ni tokens reales en Git.
+- Si una credencial real fue commiteada o compartida en documentación, considérala comprometida y rótala antes de usar el entorno en producción.
+- Comparte dumps sólo por canales seguros temporales y bórralos después de importarlos.
+
 ### 4. Crear y Configurar la Base de Datos PostgreSQL
 
 Tienes **3 opciones** para crear la base de datos:
@@ -97,18 +103,20 @@ Si ya tienes una base de datos PostgreSQL externa (como en Hostinger o tu servid
    ```
    Ejemplo:
    ```
-   postgresql://postgres:nkh123@147.93.13.17:5432/eventloop_local?schema=public
+   postgresql://usuario:password@db.example.com:5432/rakium_production?schema=public
    ```
 
 #### Migrar Datos desde Railway (Opcional)
+
+Para el proceso operativo completo, usa `DOKPLOY_DB_MIGRATION_RUNBOOK.md`. Esta seccion queda como resumen rapido.
 
 Si quieres migrar los datos existentes de Railway a Dokploy:
 
 1. **Hacer dump de la base de datos de Railway:**
    ```bash
-   ./scripts/dump-railway-db.sh
+   RAILWAY_DATABASE_URL='postgresql://usuario:password@host:puerto/nombre_db' ./scripts/dump-railway-db.sh
    ```
-   Este script creará un archivo SQL en `./dumps/` con todos los datos de Railway.
+   Este script creara un archivo SQL en `./dumps/` con todos los datos de Railway. No guardes esa URL en Git.
 
 2. **Importar el dump en Dokploy:**
 
@@ -126,10 +134,10 @@ Si quieres migrar los datos existentes de Railway a Dokploy:
    c. Ejecuta:
    ```bash
    # Si tienes psql instalado en el servidor
-   psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < railway-dump-YYYYMMDD-HHMMSS.sql
+   psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < railway-dump-YYYYMMDD-HHMMSS.sql
    
    # O usando Docker (si no tienes psql instalado)
-   docker run --rm -i -v $(pwd):/dumps postgres:16-alpine psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < railway-dump-YYYYMMDD-HHMMSS.sql
+   docker run --rm -i -v $(pwd):/dumps postgres:16-alpine psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < railway-dump-YYYYMMDD-HHMMSS.sql
    ```
 
    **Opción C: Usar un contenedor temporal en Dokploy**
@@ -140,12 +148,13 @@ Si quieres migrar los datos existentes de Railway a Dokploy:
    docker run --rm -it --network dokploy_default \
      -v /ruta/al/dump:/dumps \
      postgres:16-alpine \
-     psql 'postgresql://rakium_user:Troyanos22@rakium-database-nnbukr:5432/rakium_production' < /dumps/railway-dump-YYYYMMDD-HHMMSS.sql
+     psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /dumps/railway-dump-YYYYMMDD-HHMMSS.sql
    ```
 
    **Nota**: 
    - Esto sobrescribirá los datos existentes en la base de datos de Dokploy
-   - Si `rakium-database-nnbukr` es un nombre de servicio interno de Docker, solo será accesible desde dentro de la red de Docker de Dokploy
+   - Si `dokploy-db-host` es un nombre de servicio interno de Docker, solo será accesible desde dentro de la red de Docker de Dokploy
+   - No uses un Dockerfile temporal ni construyas una imagen que contenga el dump
 
 #### Configurar DATABASE_URL en la Aplicación
 
