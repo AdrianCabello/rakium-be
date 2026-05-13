@@ -72,6 +72,16 @@ async function main() {
     expectStatus(response, [401]);
   });
 
+  await check('upload/test rejects anonymous requests', async () => {
+    const form = new FormData();
+    form.append('folder', 'smoke');
+    const response = await request('/upload/test', {
+      method: 'POST',
+      body: form,
+    });
+    expectStatus(response, [401]);
+  });
+
   if (uploadFilePath) {
     await check('authenticated upload/file accepts image file', async () => {
       const file = readFileSync(uploadFilePath);
