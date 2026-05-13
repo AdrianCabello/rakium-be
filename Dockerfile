@@ -1,56 +1,47 @@
-# Usar imagen base de Node.js 18
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS base
 
-# Instalar dependencias del sistema necesarias para Prisma y Sharp
 RUN apk add --no-cache libc6-compat openssl
 
-# Establecer directorio de trabajo
 WORKDIR /app
+ENV NODE_ENV=production
 
-# Copiar archivos de configuración de dependencias
+FROM base AS build-deps
+
+ENV NODE_ENV=development
+
 COPY package*.json ./
+COPY .npmrc ./
 COPY prisma ./prisma/
+RUN npm ci
 
-# Instalar dependencias
-RUN npm i
+FROM build-deps AS builder
 
-# Generar cliente Prisma
-RUN npx prisma generate
-
-# Copiar el resto del código fuente
+ENV NODE_ENV=development
 COPY . .
-
-# Construir la aplicación
 RUN npm run build
 
-# Imagen de producción
-FROM node:18-alpine AS runner
+FROM base AS prod-deps
 
-# Instalar dependencias del sistema necesarias para Prisma y Sharp
-RUN apk add --no-cache libc6-compat openssl
+COPY package*.json ./
+COPY .npmrc ./
+COPY prisma ./prisma/
+RUN npm ci --omit=dev
 
-WORKDIR /app
+FROM base AS runner
 
-# Configurar usuario no root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
-
-# Copiar archivos necesarios desde builder
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-
-# Cambiar a usuario no root
-USER nestjs
-
-# Exponer puerto
-EXPOSE 3000
-
-# Variables de entorno por defecto
-ENV NODE_ENV=production
 ENV PORT=3000
 
-# Comando de inicio
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main"]
+COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /app/package*.json ./
+COPY --from=builder --chown=node:node /app/.npmrc ./
+COPY --from=builder --chown=node:node /app/prisma ./prisma
+
+USER node
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -qO- "http://127.0.0.1:${PORT}/api" >/dev/null || exit 1
+
+CMD ["npm", "run", "start:docker"]
