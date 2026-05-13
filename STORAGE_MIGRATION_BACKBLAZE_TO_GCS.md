@@ -102,18 +102,28 @@ Existing database URLs still point to Backblaze until URL rewrite is done.
 
 ## 5. URL rewrite plan
 
-After object copy is validated, create a separate PR or one-time migration script to update:
+After object copy is validated, use the manifest to rewrite:
 
 - `Gallery.url`
 - `Project.imageBefore`
 - `Project.imageAfter`
 
-Use the generated manifest as the source of truth:
+Dry run first:
 
-- Replace each `currentUrl` with `targetUrl`.
-- Wrap updates in a transaction.
-- Take a database backup first.
-- Keep Backblaze objects for rollback until the frontend has been verified against rewritten URLs.
+```bash
+DATABASE_URL="postgresql://user:password@host:5432/db?schema=public" \
+npm run storage:rewrite-gcs-urls
+```
+
+Apply only after a database backup and object-copy validation:
+
+```bash
+DATABASE_URL="postgresql://user:password@host:5432/db?schema=public" \
+STORAGE_MIGRATION_APPLY=true \
+npm run storage:rewrite-gcs-urls
+```
+
+The script uses `currentUrl` guards in each update, so it will not overwrite rows that changed after the manifest was generated. Keep Backblaze objects for rollback until the frontend has been verified against rewritten URLs.
 
 ## 6. Rollback
 
