@@ -5,6 +5,7 @@ import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
 import { getPaginationParams, createPaginatedResponse, buildSearchFilter } from '../utils/pagination.util';
 import { Prisma } from '@prisma/client';
+import { userSummarySelect } from '../users/user.select';
 
 @Injectable()
 export class ProjectsService {
@@ -70,7 +71,9 @@ export class ProjectsService {
       data: filteredData,
       include: {
         client: true,
-        creator: true,
+        creator: {
+          select: userSummarySelect,
+        },
       },
     });
   }
@@ -396,7 +399,9 @@ export class ProjectsService {
       data: filteredData,
       include: {
         client: true,
-        creator: true,
+        creator: {
+          select: userSummarySelect,
+        },
       },
     });
   }
@@ -491,7 +496,9 @@ export class ProjectsService {
       data: filteredData,
       include: {
         client: true,
-        creator: true,
+        creator: {
+          select: userSummarySelect,
+        },
       },
     });
   }
@@ -553,7 +560,9 @@ export class ProjectsService {
       data: { order: newOrder },
       include: {
         client: true,
-        creator: true,
+        creator: {
+          select: userSummarySelect,
+        },
       },
     });
   }

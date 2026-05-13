@@ -4,6 +4,7 @@ import { CreateClientDto } from '../dto/create-client.dto';
 import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
 import { getPaginationParams, createPaginatedResponse, buildClientSearchFilter } from '../utils/pagination.util';
 import { Prisma } from '@prisma/client';
+import { userSummarySelect } from '../users/user.select';
 
 @Injectable()
 export class ClientsService {
@@ -70,7 +71,9 @@ export class ClientsService {
         where: { id },
         include: {
           projects: true,
-          users: true,
+          users: {
+            select: userSummarySelect,
+          },
         },
       });
 

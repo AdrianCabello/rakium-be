@@ -5,6 +5,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
 import { getPaginationParams, createPaginatedResponse, buildUserSearchFilter } from '../utils/pagination.util';
 import * as bcrypt from 'bcrypt';
+import { publicUserSelect, userSummarySelect, userWithPasswordSelect } from './user.select';
 
 @Injectable()
 export class UsersService {
@@ -29,21 +30,7 @@ export class UsersService {
         role: createUserDto.role,
         clientId: createUserDto.clientId,
       },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        clientId: true,
-        createdAt: true,
-        updatedAt: true,
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+      select: publicUserSelect,
     });
   }
 
@@ -54,21 +41,7 @@ export class UsersService {
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where: searchFilter,
-        select: {
-          id: true,
-          email: true,
-          role: true,
-          clientId: true,
-          createdAt: true,
-          updatedAt: true,
-          client: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
+        select: publicUserSelect,
         orderBy: {
           createdAt: 'desc',
         },
@@ -86,8 +59,8 @@ export class UsersService {
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: {
-        client: true,
+      select: {
+        ...publicUserSelect,
         projects: true,
       },
     });
@@ -102,9 +75,7 @@ export class UsersService {
   async findByEmail(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: {
-        client: true,
-      },
+      select: publicUserSelect,
     });
 
     if (!user) {
@@ -125,6 +96,7 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data,
+      select: publicUserSelect,
     });
   }
 
@@ -136,7 +108,7 @@ export class UsersService {
 
   async validateUser(email: string, password: string) {
     try {
-      const user = await this.findByEmail(email);
+      const user = await this.findByEmailWithPassword(email);
       const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
       if (!isPasswordValid) {
@@ -151,4 +123,17 @@ export class UsersService {
       throw error;
     }
   }
-} 
+
+  private async findByEmailWithPassword(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: userWithPasswordSelect,
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+}
