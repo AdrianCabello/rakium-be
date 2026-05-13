@@ -29,9 +29,9 @@ apk add --no-cache postgresql-client
 psql 'postgresql://usuario:password@dokploy-db-host:5432/rakium_production' < /ruta/al/railway-dump-YYYYMMDD-HHMMSS.sql
 ```
 
-## Método 2: Dockerfile Temporal (RECOMENDADO - Más Confiable)
+## Método 2: Contenedor temporal de PostgreSQL client (recomendado)
 
-Este método importa el dump automáticamente durante el build. Es la mejor opción si el terminal no está disponible:
+Este método importa el dump desde un contenedor efímero en la red interna de Dokploy. No copies el dump dentro de la imagen de la aplicación ni lo importes durante el build:
 
 ### Paso 1: Mantener el dump fuera del repositorio
 

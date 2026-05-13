@@ -108,13 +108,15 @@ Si ya tienes una base de datos PostgreSQL externa (como en Hostinger o tu servid
 
 #### Migrar Datos desde Railway (Opcional)
 
+Para el proceso operativo completo, usa `DOKPLOY_DB_MIGRATION_RUNBOOK.md`. Esta seccion queda como resumen rapido.
+
 Si quieres migrar los datos existentes de Railway a Dokploy:
 
 1. **Hacer dump de la base de datos de Railway:**
    ```bash
-   ./scripts/dump-railway-db.sh
+   RAILWAY_DATABASE_URL='postgresql://usuario:password@host:puerto/nombre_db' ./scripts/dump-railway-db.sh
    ```
-   Este script creará un archivo SQL en `./dumps/` con todos los datos de Railway.
+   Este script creara un archivo SQL en `./dumps/` con todos los datos de Railway. No guardes esa URL en Git.
 
 2. **Importar el dump en Dokploy:**
 
@@ -152,6 +154,7 @@ Si quieres migrar los datos existentes de Railway a Dokploy:
    **Nota**: 
    - Esto sobrescribirá los datos existentes en la base de datos de Dokploy
    - Si `dokploy-db-host` es un nombre de servicio interno de Docker, solo será accesible desde dentro de la red de Docker de Dokploy
+   - No uses un Dockerfile temporal ni construyas una imagen que contenga el dump
 
 #### Configurar DATABASE_URL en la Aplicación
 
