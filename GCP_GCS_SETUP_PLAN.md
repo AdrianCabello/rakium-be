@@ -4,18 +4,29 @@ This is the setup plan for the future Backblaze to Google Cloud Storage migratio
 
 ## Resources To Create
 
-- Google Cloud project: use an existing Rakium/Adrian project if one already exists; otherwise create a dedicated project such as `rakium-prod`.
-- Cloud Storage bucket: `rakium-prod-assets` or another globally unique variant.
-- Bucket location: `us-central1` unless there is a stronger latency/compliance reason to choose another region.
-- Service account: `rakium-be-storage`.
-- Service account role: prefer bucket-scoped `roles/storage.objectAdmin` on the target bucket.
+- Google Cloud project: `rakium-prod-401022`.
+- Cloud Storage bucket: `rakium-prod-assets-401022`.
+- Bucket location: `us-central1`.
+- Service account: `rakium-be-storage@rakium-prod-401022.iam.gserviceaccount.com`.
+- Service account role: bucket-scoped `roles/storage.objectAdmin` on `rakium-prod-assets-401022`.
+- Public read role: bucket-scoped `roles/storage.objectViewer` for `allUsers`.
+
+## Current Status
+
+- Project created.
+- Billing linked.
+- Cloud Storage/IAM APIs enabled.
+- Bucket created with uniform bucket-level access.
+- Public object reads verified.
+- Service account key created at `.tmp/gcp/rakium-be-storage-key.json`; this path is ignored by Git.
+- Smoke upload/read/delete verified with `@google-cloud/storage`.
 
 ## Backend Environment Variables
 
 ```bash
 STORAGE_PROVIDER=gcs
-GCS_BUCKET_NAME=<bucket>
-GCS_PROJECT_ID=<project-id>
+GCS_BUCKET_NAME=rakium-prod-assets-401022
+GCS_PROJECT_ID=rakium-prod-401022
 GCS_SERVICE_ACCOUNT_JSON=<escaped-service-account-json>
 ```
 
@@ -27,27 +38,31 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
 
 ## CLI Flow
 
-After `gcloud auth login` and project selection:
+Already executed for the current setup:
 
 ```bash
 gcloud services enable storage.googleapis.com
 
-gcloud storage buckets create gs://<bucket> \
-  --project=<project-id> \
+gcloud storage buckets create gs://rakium-prod-assets-401022 \
+  --project=rakium-prod-401022 \
   --location=us-central1 \
   --uniform-bucket-level-access
 
+gcloud storage buckets add-iam-policy-binding gs://rakium-prod-assets-401022 \
+  --member="allUsers" \
+  --role="roles/storage.objectViewer"
+
 gcloud iam service-accounts create rakium-be-storage \
-  --project=<project-id> \
+  --project=rakium-prod-401022 \
   --display-name="Rakium BE Storage"
 
-gcloud storage buckets add-iam-policy-binding gs://<bucket> \
-  --member="serviceAccount:rakium-be-storage@<project-id>.iam.gserviceaccount.com" \
+gcloud storage buckets add-iam-policy-binding gs://rakium-prod-assets-401022 \
+  --member="serviceAccount:rakium-be-storage@rakium-prod-401022.iam.gserviceaccount.com" \
   --role="roles/storage.objectAdmin"
 
 gcloud iam service-accounts keys create .tmp/gcp/rakium-be-storage-key.json \
-  --iam-account="rakium-be-storage@<project-id>.iam.gserviceaccount.com" \
-  --project=<project-id>
+  --iam-account="rakium-be-storage@rakium-prod-401022.iam.gserviceaccount.com" \
+  --project=rakium-prod-401022
 ```
 
 ## Safety
