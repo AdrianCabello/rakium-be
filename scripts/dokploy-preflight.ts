@@ -56,7 +56,8 @@ async function main() {
   console.log(`- STORAGE_PROVIDER: ${storageProvider}`);
 
   if (storageProvider === 'gcs' || storageProvider === 'google-cloud-storage') {
-    requireEnv(['GCS_BUCKET_NAME', 'GCS_PROJECT_ID', 'GCS_CLIENT_EMAIL', 'GCS_PRIVATE_KEY']);
+    requireEnv(['GCS_BUCKET_NAME']);
+    requireAnyEnv(['GCS_SERVICE_ACCOUNT_JSON', 'GOOGLE_APPLICATION_CREDENTIALS']);
   } else {
     requireEnv(['BACKBLAZE_ACCESS_KEY_ID', 'BACKBLAZE_SECRET_ACCESS_KEY', 'BACKBLAZE_BUCKET_NAME']);
   }
@@ -72,6 +73,15 @@ function requireEnv(names: string[]) {
   }
 
   console.log('- storage env variables: present');
+}
+
+function requireAnyEnv(names: string[]) {
+  if (names.some((name) => process.env[name])) {
+    console.log(`- storage auth env variable: present (${names.join(' or ')})`);
+    return;
+  }
+
+  console.warn(`- storage env warning: missing one of ${names.join(', ')}`);
 }
 
 main()

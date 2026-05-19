@@ -58,9 +58,9 @@ Para Google Cloud Storage:
 STORAGE_PROVIDER=gcs
 GCS_BUCKET_NAME=nombre-de-tu-bucket
 GCS_PROJECT_ID=tu-project-id
-GCS_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
-GCS_PRIVATE_KEY=tu-private-key-con-saltos-escapados
-GCS_PUBLIC_BASE_URL=https://storage.googleapis.com/nombre-de-tu-bucket
+GCS_SERVICE_ACCOUNT_JSON=service-account-json-escapado
+# o
+GOOGLE_APPLICATION_CREDENTIALS=/ruta/al/service-account.json
 ```
 
 #### Seguridad de Secretos

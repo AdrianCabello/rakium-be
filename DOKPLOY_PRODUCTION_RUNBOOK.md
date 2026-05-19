@@ -48,9 +48,9 @@ When Google Cloud Storage is ready:
 STORAGE_PROVIDER=gcs
 GCS_BUCKET_NAME=<bucket>
 GCS_PROJECT_ID=<project-id>
-GCS_CLIENT_EMAIL=<service-account-email>
-GCS_PRIVATE_KEY=<service-account-private-key-with-newlines-escaped>
-GCS_PUBLIC_BASE_URL=https://storage.googleapis.com/<bucket>
+GCS_SERVICE_ACCOUNT_JSON=<escaped-service-account-json>
+# or
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
 ```
 
 ## Preflight before first deploy
