@@ -41,12 +41,26 @@ JWT_EXPIRATION=7d
 PORT=3000
 ```
 
-#### Variables Opcionales (para uploads a Backblaze B2)
+#### Variables Opcionales (para uploads)
+
+Backblaze sigue siendo el default si no se define `STORAGE_PROVIDER`:
 
 ```
+STORAGE_PROVIDER=backblaze
 BACKBLAZE_ACCESS_KEY_ID=tu-access-key-id
 BACKBLAZE_SECRET_ACCESS_KEY=tu-secret-access-key
 BACKBLAZE_BUCKET_NAME=nombre-de-tu-bucket
+```
+
+Para Google Cloud Storage:
+
+```
+STORAGE_PROVIDER=gcs
+GCS_BUCKET_NAME=nombre-de-tu-bucket
+GCS_PROJECT_ID=tu-project-id
+GCS_SERVICE_ACCOUNT_JSON=service-account-json-escapado
+# o
+GOOGLE_APPLICATION_CREDENTIALS=/ruta/al/service-account.json
 ```
 
 #### Seguridad de Secretos

@@ -41,7 +41,6 @@ export class GcsStorageProvider implements StorageProvider {
       await file.save(input.body, {
         contentType: input.contentType,
         resumable: false,
-        predefinedAcl: input.acl === 'public-read' ? 'publicRead' : 'private',
       });
 
       return `https://storage.googleapis.com/${this.bucketName}/${input.key}`;

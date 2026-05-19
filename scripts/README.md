@@ -66,3 +66,31 @@ SMOKE_UPLOAD_FILE=./path/to/image.jpg
 ```
 
 The smoke test validates login, `auth/me`, private project permissions, public project routes, and upload auth. The authenticated upload is skipped unless `SMOKE_UPLOAD_FILE` is set.
+
+## `dokploy-preflight.ts`
+
+Runs preflight checks against the database that will be used by Dokploy:
+
+```bash
+DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DB?schema=public' npm run dokploy:preflight
+```
+
+It prints table counts, fails on duplicate `(client_id, order)` project values, and warns when storage env vars for the selected `STORAGE_PROVIDER` are missing.
+
+## `rewrite-storage-urls-to-gcs.ts`
+
+Uses the Backblaze to GCS manifest to rewrite database URLs after objects have been copied and validated.
+
+Dry run:
+
+```bash
+npm run storage:rewrite-gcs-urls
+```
+
+Apply:
+
+```bash
+STORAGE_MIGRATION_APPLY=true npm run storage:rewrite-gcs-urls
+```
+
+The script updates rows only when the current database URL still matches the manifest `currentUrl`.

@@ -48,9 +48,9 @@ When Google Cloud Storage is ready:
 STORAGE_PROVIDER=gcs
 GCS_BUCKET_NAME=<bucket>
 GCS_PROJECT_ID=<project-id>
-GCS_CLIENT_EMAIL=<service-account-email>
-GCS_PRIVATE_KEY=<service-account-private-key-with-newlines-escaped>
-GCS_PUBLIC_BASE_URL=https://storage.googleapis.com/<bucket>
+GCS_SERVICE_ACCOUNT_JSON=<escaped-service-account-json>
+# or
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
 ```
 
 ## Preflight before first deploy
@@ -58,7 +58,15 @@ GCS_PUBLIC_BASE_URL=https://storage.googleapis.com/<bucket>
 1. Confirm Railway is still serving production.
 2. Create a fresh database backup.
 3. Import the database into Dokploy Postgres using `DOKPLOY_DB_MIGRATION_RUNBOOK.md`.
-4. Run this duplicate-order check before deploying migrations:
+4. Run the automated preflight:
+
+```bash
+DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DB?schema=public' npm run dokploy:preflight
+```
+
+This checks table counts, duplicate project ordering per client, and storage environment completeness. The duplicate-order check is the blocker because the schema enforces a unique `(client_id, order)` index.
+
+You can also run the SQL manually:
 
 ```sql
 SELECT client_id, "order", COUNT(*)
