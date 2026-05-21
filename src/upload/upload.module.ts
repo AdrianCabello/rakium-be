@@ -24,9 +24,11 @@ import { STORAGE_PROVIDER } from './storage/storage-provider.interface';
         backblazeStorageProvider: BackblazeStorageProvider,
         gcsStorageProvider: GcsStorageProvider,
       ) => {
-        const provider = configService.get<string>('STORAGE_PROVIDER')?.toLowerCase() ?? 'backblaze';
+        const provider =
+          configService.get<string>('STORAGE_PROVIDER')?.trim().replace(/^['"]|['"]$/g, '').toLowerCase() ?? '';
+        const hasGcsConfig = Boolean(configService.get<string>('GCS_BUCKET_NAME'));
 
-        if (provider === 'gcs' || provider === 'google-cloud-storage') {
+        if (provider === 'gcs' || provider === 'google-cloud-storage' || (!provider && hasGcsConfig)) {
           return gcsStorageProvider;
         }
 
