@@ -11,7 +11,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Public } from '../auth/public.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('upload')
@@ -22,10 +21,9 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('test')
-  @Public()
   @ApiOperation({ 
-    summary: 'Test de upload (público)',
-    description: 'Endpoint temporal público para probar el upload de imágenes'
+    summary: 'Test de upload',
+    description: 'Endpoint protegido para probar el upload de imágenes'
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -61,8 +59,8 @@ export class UploadController {
 
   @Post('file')
   @ApiOperation({
-    summary: 'Upload a file to Backblaze B2',
-    description: 'Uploads a file to Backblaze B2 storage with optional optimization. Supports images (JPEG, PNG, GIF, WebP) with automatic optimization enabled by default.'
+    summary: 'Upload a file to configured storage',
+    description: 'Uploads a file to the configured storage provider with optional optimization. Supports images (JPEG, PNG, GIF, WebP) with automatic optimization enabled by default.'
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -98,7 +96,7 @@ export class UploadController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid file type, file too large, or Backblaze B2 not configured',
+    description: 'Invalid file type, file too large, or storage provider not configured',
   })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(

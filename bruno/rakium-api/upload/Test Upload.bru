@@ -1,5 +1,5 @@
 meta {
-  name: Test Upload (Public)
+  name: Test Upload
   type: http
   seq: 1
 }
@@ -7,7 +7,11 @@ meta {
 post {
   url: {{baseUrl}}/upload/test
   body: multipartForm
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
 }
 
 body:multipart-form {
@@ -16,6 +20,7 @@ body:multipart-form {
 
 vars:pre-request {
   baseUrl: https://rakium-be-production.up.railway.app
+  authToken: bruno.getEnvironmentVar("authToken")
 }
 
 tests {

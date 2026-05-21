@@ -53,7 +53,6 @@ describe('GcsStorageProvider', () => {
     expect(save).toHaveBeenCalledWith(Buffer.from('image'), {
       contentType: 'image/webp',
       resumable: false,
-      predefinedAcl: 'publicRead',
     });
     expect(url).toBe('https://storage.googleapis.com/rakium-bucket/projects/demo/image.webp');
   });

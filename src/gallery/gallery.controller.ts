@@ -148,6 +148,6 @@ export class GalleryController {
   @ApiQuery({ name: 'page', required: false, description: 'Page number (starts from 1)', example: 1 })
   @ApiQuery({ name: 'limit', required: false, description: 'Number of items per page', example: 10 })
   async getPublicGallery(@Param('projectId') projectId: string, @Query() paginationDto: PaginationDto) {
-    return this.galleryService.findAll(projectId, paginationDto);
+    return this.galleryService.findPublicGallery(projectId, paginationDto);
   }
 } 

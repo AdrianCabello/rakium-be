@@ -166,22 +166,6 @@ export class ProjectsController {
     return this.projectsService.findPublishedProject(id);
   }
 
-  @ApiOperation({ summary: 'Update a project' })
-  @ApiResponse({ status: 200, description: 'Project updated successfully' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(id, updateProjectDto);
-  }
-
-  @ApiOperation({ summary: 'Delete a project' })
-  @ApiResponse({ status: 200, description: 'Project deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(id);
-  }
-
   @Patch('reorder')
   @ApiOperation({ 
     summary: 'Reorder projects',
@@ -203,6 +187,22 @@ export class ProjectsController {
   })
   async reorderProjects(@Body() reorderData: { id: string; order: number }[]) {
     return this.projectsService.reorderProjects(reorderData);
+  }
+
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiResponse({ status: 200, description: 'Project updated successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+    return this.projectsService.update(id, updateProjectDto);
+  }
+
+  @ApiOperation({ summary: 'Delete a project' })
+  @ApiResponse({ status: 200, description: 'Project deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.projectsService.remove(id);
   }
 
   @Patch(':id/order/:order')
