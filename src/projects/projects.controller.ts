@@ -167,7 +167,7 @@ export class ProjectsController {
   }
 
   @Patch('reorder')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Reorder projects',
     description: 'Update the order of multiple projects at once'
   })

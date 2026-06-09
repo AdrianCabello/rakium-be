@@ -69,8 +69,7 @@ export class BackblazeStorageProvider implements StorageProvider {
     this.assertConfigured();
 
     try {
-      const urlParts = fileUrl.split('/');
-      const fileName = urlParts.slice(-2).join('/');
+      const fileName = this.getObjectKeyFromUrl(fileUrl);
 
       const command = new DeleteObjectCommand({
         Bucket: this.bucketName,
@@ -93,6 +92,18 @@ export class BackblazeStorageProvider implements StorageProvider {
     });
 
     return getSignedUrl(this.s3Client, command, { expiresIn: input.expiresIn ?? 3600 });
+  }
+
+  private getObjectKeyFromUrl(fileUrl: string): string {
+    const url = new URL(fileUrl);
+    const path = decodeURIComponent(url.pathname.replace(/^\/+/, ''));
+    const bucketPrefix = `${this.bucketName}/`;
+
+    if (path.startsWith(bucketPrefix)) {
+      return path.slice(bucketPrefix.length);
+    }
+
+    return path;
   }
 
   private handleStorageError(error: unknown, defaultMessage: string): never {

@@ -49,6 +49,7 @@ lerna-debug.log*
 # Database dumps
 /dumps
 *.sql
+!prisma/migrations/**/migration.sql
 
 # Runtime data
 pids

@@ -20,6 +20,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node prisma/seed.ts",
+    "seed:adrian-mvp": "ts-node scripts/seed-adrian-mvp.ts",
     "assign-lautarovulcano": "ts-node scripts/assign-lautarovulcano-client.ts",
     "storage:plan-gcs-migration": "ts-node scripts/plan-backblaze-to-gcs-migration.ts",
     "storage:rewrite-gcs-urls": "ts-node scripts/rewrite-storage-urls-to-gcs.ts",

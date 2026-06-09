@@ -31,6 +31,8 @@ async function bootstrap() {
     'https://www.landicandela.com',
     'https://kamak.com.ar',
     'https://www.kamak.com.ar',
+    'https://adriancabello.dev',
+    'https://www.adriancabello.dev',
     'https://adriancabello.github.io',
   ];
   const extraOrigins = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? [];
