@@ -7,6 +7,7 @@ import {
   CreateFinanceTransactionDto,
   CreatePersonalNoteDto,
   CreatePersonalTaskDto,
+  UpdateFinanceTransactionDto,
   UpdatePersonalNoteDto,
   UpdatePersonalTaskDto,
 } from './dto/personal.dto';
@@ -312,6 +313,35 @@ export class PersonalService {
     });
   }
 
+  async updateFinanceTransaction(user: AuthUser, id: string, dto: UpdateFinanceTransactionDto) {
+    const clientId = this.getClientId(user);
+    await this.ensureTransactionBelongsToClient(id, clientId);
+    await this.ensureAccountBelongsToClient(dto.accountId, clientId);
+    await this.ensureCategoryBelongsToClient(dto.categoryId, clientId);
+
+    return this.prisma.financeTransaction.update({
+      where: { id },
+      data: {
+        accountId: dto.accountId,
+        categoryId: dto.categoryId,
+        type: dto.type,
+        amount: dto.amount === undefined ? undefined : new Prisma.Decimal(dto.amount),
+        currency: dto.currency,
+        date: dto.date ? new Date(dto.date) : undefined,
+        description: dto.description,
+        merchant: dto.merchant,
+      },
+      include: { account: true, category: true },
+    });
+  }
+
+  async deleteFinanceTransaction(user: AuthUser, id: string) {
+    const clientId = this.getClientId(user);
+    await this.ensureTransactionBelongsToClient(id, clientId);
+    await this.prisma.financeTransaction.delete({ where: { id } });
+    return { deleted: true };
+  }
+
   private async ensureAreaBelongsToClient(areaId: string | undefined, clientId: string) {
     if (!areaId) return;
     const area = await this.prisma.lifeArea.findFirst({ where: { id: areaId, clientId }, select: { id: true } });
@@ -338,5 +368,10 @@ export class PersonalService {
     if (!categoryId) return;
     const category = await this.prisma.financeCategory.findFirst({ where: { id: categoryId, clientId }, select: { id: true } });
     if (!category) throw new NotFoundException('Categoria no encontrada para este cliente');
+  }
+
+  private async ensureTransactionBelongsToClient(id: string, clientId: string) {
+    const transaction = await this.prisma.financeTransaction.findFirst({ where: { id, clientId }, select: { id: true } });
+    if (!transaction) throw new NotFoundException('Movimiento no encontrado');
   }
 }

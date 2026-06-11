@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PersonalTaskStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -8,6 +8,7 @@ import {
   CreateFinanceTransactionDto,
   CreatePersonalNoteDto,
   CreatePersonalTaskDto,
+  UpdateFinanceTransactionDto,
   UpdatePersonalNoteDto,
   UpdatePersonalTaskDto,
 } from './dto/personal.dto';
@@ -91,5 +92,17 @@ export class PersonalController {
   @ApiOperation({ summary: 'Create a finance transaction' })
   createFinanceTransaction(@Request() req, @Body() dto: CreateFinanceTransactionDto) {
     return this.personalService.createFinanceTransaction(req.user, dto);
+  }
+
+  @Patch('finance/transactions/:id')
+  @ApiOperation({ summary: 'Update a finance transaction' })
+  updateFinanceTransaction(@Request() req, @Param('id') id: string, @Body() dto: UpdateFinanceTransactionDto) {
+    return this.personalService.updateFinanceTransaction(req.user, id, dto);
+  }
+
+  @Delete('finance/transactions/:id')
+  @ApiOperation({ summary: 'Delete a finance transaction' })
+  deleteFinanceTransaction(@Request() req, @Param('id') id: string) {
+    return this.personalService.deleteFinanceTransaction(req.user, id);
   }
 }

@@ -253,3 +253,49 @@ export class CreateFinanceTransactionDto {
   @IsUUID()
   categoryId?: string;
 }
+
+export class UpdateFinanceTransactionDto {
+  @ApiPropertyOptional({ enum: FinanceTransactionType, example: FinanceTransactionType.EXPENSE })
+  @IsOptional()
+  @IsEnum(FinanceTransactionType)
+  type?: FinanceTransactionType;
+
+  @ApiPropertyOptional({ example: 12500 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  amount?: number;
+
+  @ApiPropertyOptional({ example: 'ARS' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  currency?: string;
+
+  @ApiPropertyOptional({ example: '2026-06-09T12:00:00.000Z' })
+  @IsOptional()
+  @IsDateString()
+  date?: string;
+
+  @ApiPropertyOptional({ example: 'SaaS mensual' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string;
+
+  @ApiPropertyOptional({ example: 'OpenAI' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  merchant?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  accountId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
+}

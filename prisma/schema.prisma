@@ -22,137 +22,137 @@ model User {
 }
 
 model Client {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  users     User[]
-  projects  Project[]
-  lifeAreas LifeArea[]
-  tasks     PersonalTask[]
-  notes     PersonalNote[]
-  financeAccounts FinanceAccount[]
-  financeCategories FinanceCategory[]
+  id                  String               @id @default(uuid())
+  name                String
+  email               String               @unique
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  users               User[]
+  projects            Project[]
+  lifeAreas           LifeArea[]
+  tasks               PersonalTask[]
+  notes               PersonalNote[]
+  financeAccounts     FinanceAccount[]
+  financeCategories   FinanceCategory[]
   financeTransactions FinanceTransaction[]
 
   @@map("Client")
 }
 
 model LifeArea {
-  id        String    @id @default(uuid())
-  clientId  String    @map("client_id")
-  name      String
-  color     String?
-  icon      String?
-  order     Int       @default(0)
-  archivedAt DateTime? @map("archived_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  tasks     PersonalTask[]
-  notes     PersonalNote[]
+  id         String         @id @default(uuid())
+  clientId   String         @map("client_id")
+  name       String
+  color      String?
+  icon       String?
+  order      Int            @default(0)
+  archivedAt DateTime?      @map("archived_at")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+  client     Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tasks      PersonalTask[]
+  notes      PersonalNote[]
 
-  @@map("life_areas")
   @@unique([clientId, name], name: "unique_life_area_per_client")
+  @@map("life_areas")
 }
 
 model PersonalTask {
-  id          String             @id @default(uuid())
-  clientId    String             @map("client_id")
-  areaId      String?            @map("area_id")
-  title       String
-  description String?
-  status      PersonalTaskStatus @default(TODO)
-  priority    PersonalPriority   @default(NORMAL)
-  dueDate     DateTime?          @map("due_date")
-  scheduledDate DateTime?        @map("scheduled_date")
-  completedAt DateTime?          @map("completed_at")
-  estimatedMinutes Int?          @map("estimated_minutes")
-  tags        Json?
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
-  client      Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  area        LifeArea?          @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  id               String             @id @default(uuid())
+  clientId         String             @map("client_id")
+  areaId           String?            @map("area_id")
+  title            String
+  description      String?
+  status           PersonalTaskStatus @default(TODO)
+  priority         PersonalPriority   @default(NORMAL)
+  dueDate          DateTime?          @map("due_date")
+  scheduledDate    DateTime?          @map("scheduled_date")
+  completedAt      DateTime?          @map("completed_at")
+  estimatedMinutes Int?               @map("estimated_minutes")
+  tags             Json?
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  client           Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  area             LifeArea?          @relation(fields: [areaId], references: [id], onDelete: SetNull)
 
-  @@map("personal_tasks")
   @@index([clientId, status, dueDate])
   @@index([clientId, scheduledDate])
+  @@map("personal_tasks")
 }
 
 model PersonalNote {
-  id        String           @id @default(uuid())
-  clientId  String           @map("client_id")
-  areaId    String?          @map("area_id")
-  title     String?
-  content   String
-  type      PersonalNoteType @default(BRAIN_DUMP)
-  pinned    Boolean          @default(false)
-  archivedAt DateTime?       @map("archived_at")
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt @map("updated_at")
-  client    Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  area      LifeArea?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  id         String           @id @default(uuid())
+  clientId   String           @map("client_id")
+  areaId     String?          @map("area_id")
+  title      String?
+  content    String
+  type       PersonalNoteType @default(BRAIN_DUMP)
+  pinned     Boolean          @default(false)
+  archivedAt DateTime?        @map("archived_at")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  client     Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  area       LifeArea?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
 
-  @@map("personal_notes")
   @@index([clientId, type, createdAt])
+  @@map("personal_notes")
 }
 
 model FinanceAccount {
-  id        String   @id @default(uuid())
-  clientId  String   @map("client_id")
-  name      String
-  type      FinanceAccountType @default(CASH)
-  currency  String   @default("ARS")
-  initialBalance Decimal @default(0) @map("initial_balance") @db.Decimal(12, 2)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  transactions FinanceTransaction[]
+  id             String               @id @default(uuid())
+  clientId       String               @map("client_id")
+  name           String
+  type           FinanceAccountType   @default(CASH)
+  currency       String               @default("ARS")
+  initialBalance Decimal              @default(0) @map("initial_balance") @db.Decimal(12, 2)
+  active         Boolean              @default(true)
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  client         Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  transactions   FinanceTransaction[]
 
-  @@map("finance_accounts")
   @@unique([clientId, name], name: "unique_finance_account_per_client")
+  @@map("finance_accounts")
 }
 
 model FinanceCategory {
-  id        String   @id @default(uuid())
-  clientId  String   @map("client_id")
-  name      String
-  type      FinanceTransactionType
-  color     String?
-  icon      String?
-  monthlyBudget Decimal? @map("monthly_budget") @db.Decimal(12, 2)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  transactions FinanceTransaction[]
+  id            String                 @id @default(uuid())
+  clientId      String                 @map("client_id")
+  name          String
+  type          FinanceTransactionType
+  color         String?
+  icon          String?
+  monthlyBudget Decimal?               @map("monthly_budget") @db.Decimal(12, 2)
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+  client        Client                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  transactions  FinanceTransaction[]
 
-  @@map("finance_categories")
   @@unique([clientId, name, type], name: "unique_finance_category_per_client")
+  @@map("finance_categories")
 }
 
 model FinanceTransaction {
-  id          String   @id @default(uuid())
-  clientId    String   @map("client_id")
-  accountId   String?  @map("account_id")
-  categoryId  String?  @map("category_id")
+  id          String                 @id @default(uuid())
+  clientId    String                 @map("client_id")
+  accountId   String?                @map("account_id")
+  categoryId  String?                @map("category_id")
   type        FinanceTransactionType
-  amount      Decimal  @db.Decimal(12, 2)
-  currency    String   @default("ARS")
-  date        DateTime @default(now())
+  amount      Decimal                @db.Decimal(12, 2)
+  currency    String                 @default("ARS")
+  date        DateTime               @default(now())
   description String?
   merchant    String?
   notes       String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  account     FinanceAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  category    FinanceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
+  client      Client                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  account     FinanceAccount?        @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  category    FinanceCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  @@map("finance_transactions")
   @@index([clientId, date])
   @@index([clientId, type, date])
+  @@map("finance_transactions")
 }
 
 model Category {
@@ -214,12 +214,12 @@ model Project {
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])
   beforeImage     Gallery?         @relation("BeforeImage", fields: [beforeImageId], references: [id])
   coverImage      Gallery?         @relation("CoverImage", fields: [coverImageId], references: [id])
-  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  categoryRef     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  categoryRef     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   creator         User?            @relation("CreatedBy", fields: [createdBy], references: [id])
 
-  @@map("projects")
   @@unique([clientId, order], name: "unique_order_per_client")
+  @@map("projects")
 }
 
 model Gallery {

@@ -1,8 +1,18 @@
-import { Injectable, ConflictException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto } from '../dto/create-client.dto';
 import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
-import { getPaginationParams, createPaginatedResponse, buildClientSearchFilter } from '../utils/pagination.util';
+import {
+  getPaginationParams,
+  createPaginatedResponse,
+  buildClientSearchFilter,
+} from '../utils/pagination.util';
 import { Prisma } from '@prisma/client';
 import { userSummarySelect } from '../users/user.select';
 
@@ -19,7 +29,9 @@ export class ClientsService {
         throw new NotFoundException('Recurso no encontrado');
       }
       if (error.code === 'P1001') {
-        throw new InternalServerErrorException('Error de conexión con la base de datos');
+        throw new InternalServerErrorException(
+          'Error de conexión con la base de datos',
+        );
       }
     }
     throw error;
@@ -44,7 +56,9 @@ export class ClientsService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<any>> {
     const { skip, take, page, limit } = getPaginationParams(paginationDto);
     const searchFilter = buildClientSearchFilter(paginationDto.search);
 
@@ -120,6 +134,16 @@ export class ClientsService {
       // Verificar si el cliente existe
       await this.findOne(id);
 
+      const projectCount = await this.prisma.project.count({
+        where: { clientId: id },
+      });
+
+      if (projectCount > 0) {
+        throw new BadRequestException(
+          `No se puede eliminar el cliente porque tiene ${projectCount} proyecto${projectCount === 1 ? '' : 's'} asociado${projectCount === 1 ? '' : 's'}`,
+        );
+      }
+
       return this.prisma.client.delete({
         where: { id },
       });
@@ -127,4 +151,4 @@ export class ClientsService {
       this.handlePrismaError(error);
     }
   }
-} 
+}
