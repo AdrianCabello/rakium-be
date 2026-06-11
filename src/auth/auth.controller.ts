@@ -1,7 +1,21 @@
-import { Controller, Post, Body, Get, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { LoginDto } from '../dto/login.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from './public.decorator';
 
@@ -13,8 +27,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Login' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Successful login',
     schema: {
       type: 'object',
@@ -26,10 +40,16 @@ export class AuthController {
         user: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+            id: {
+              type: 'string',
+              example: '123e4567-e89b-12d3-a456-426614174000',
+            },
             email: { type: 'string', example: 'admin@rakium.com' },
             role: { type: 'string', example: 'ADMIN' },
-            clientId: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
+            clientId: {
+              type: 'string',
+              example: '123e4567-e89b-12d3-a456-426614174000',
+            },
           },
         },
       },
@@ -40,6 +60,26 @@ export class AuthController {
   @Public()
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto.email, loginDto.password);
+  }
+
+  @Post('forgot-password')
+  @Public()
+  @ApiOperation({ summary: 'Request password reset email' })
+  @ApiResponse({ status: 201, description: 'Password reset request accepted' })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.requestPasswordReset(forgotPasswordDto.email);
+  }
+
+  @Post('reset-password')
+  @Public()
+  @ApiOperation({ summary: 'Reset password using an email token' })
+  @ApiResponse({ status: 201, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.password,
+    );
   }
 
   @Get('me')
@@ -58,7 +98,7 @@ export class AuthController {
     return {
       message: 'Authentication successful',
       user: req.user,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-} 
+}
