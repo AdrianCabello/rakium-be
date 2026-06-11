@@ -127,7 +127,7 @@ export class AuthService {
   private buildPasswordResetUrl(token: string) {
     const baseUrl =
       this.configService.get<string>('PASSWORD_RESET_URL_BASE') ||
-      'https://landicandela.com/reset-password';
+      'https://rakium.dev/reset-password';
     const separator = baseUrl.includes('?') ? '&' : '?';
     return `${baseUrl}${separator}token=${encodeURIComponent(token)}`;
   }
