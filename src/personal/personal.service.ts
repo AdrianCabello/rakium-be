@@ -250,6 +250,20 @@ export class PersonalService {
     });
   }
 
+  async deleteNote(user: AuthUser, id: string) {
+    const clientId = this.getClientId(user);
+    await this.ensureNoteBelongsToClient(id, clientId);
+
+    return this.prisma.personalNote.update({
+      where: { id },
+      data: {
+        archivedAt: new Date(),
+        pinned: false,
+      },
+      include: { area: true },
+    });
+  }
+
   async listFinance(user: AuthUser) {
     const clientId = this.getClientId(user);
     const [accounts, categories, transactions] = await Promise.all([

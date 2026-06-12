@@ -70,6 +70,12 @@ export class PersonalController {
     return this.personalService.updateNote(req.user, id, dto);
   }
 
+  @Delete('notes/:id')
+  @ApiOperation({ summary: 'Archive a personal note' })
+  deleteNote(@Request() req, @Param('id') id: string) {
+    return this.personalService.deleteNote(req.user, id);
+  }
+
   @Get('finance')
   @ApiOperation({ summary: 'List accounts, categories and recent transactions' })
   listFinance(@Request() req) {
