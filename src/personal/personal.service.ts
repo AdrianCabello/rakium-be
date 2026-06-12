@@ -288,6 +288,9 @@ export class PersonalService {
         name: dto.name,
         type: dto.type,
         color: dto.color,
+        icon: dto.icon,
+        hint: dto.hint,
+        expenseMode: dto.expenseMode,
         monthlyBudget: dto.monthlyBudget === undefined ? undefined : new Prisma.Decimal(dto.monthlyBudget),
       },
     });

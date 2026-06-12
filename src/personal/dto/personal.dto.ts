@@ -208,6 +208,24 @@ export class CreateFinanceCategoryDto {
   @IsString()
   @MaxLength(40)
   color?: string;
+
+  @ApiPropertyOptional({ example: 'pi pi-wallet' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  icon?: string;
+
+  @ApiPropertyOptional({ example: 'alquiler, expensas' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  hint?: string;
+
+  @ApiPropertyOptional({ example: 'monthly' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  expenseMode?: string;
 }
 
 export class CreateFinanceTransactionDto {
