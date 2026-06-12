@@ -231,6 +231,11 @@ export class CreateFinanceTransactionDto {
   @IsDateString()
   date?: string;
 
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  isPaid?: boolean;
+
   @ApiPropertyOptional({ example: 'SaaS mensual' })
   @IsOptional()
   @IsString()
@@ -276,6 +281,11 @@ export class UpdateFinanceTransactionDto {
   @IsOptional()
   @IsDateString()
   date?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  isPaid?: boolean;
 
   @ApiPropertyOptional({ example: 'SaaS mensual' })
   @IsOptional()

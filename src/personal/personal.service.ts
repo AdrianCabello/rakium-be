@@ -112,6 +112,7 @@ export class PersonalService {
         where: {
           clientId,
           type: FinanceTransactionType.EXPENSE,
+          isPaid: true,
           date: { gte: startOfMonth, lt: startOfNextMonth },
         },
         _sum: { amount: true },
@@ -306,6 +307,7 @@ export class PersonalService {
         amount: new Prisma.Decimal(dto.amount),
         currency: dto.currency,
         date: dto.date ? new Date(dto.date) : undefined,
+        isPaid: dto.isPaid,
         description: dto.description,
         merchant: dto.merchant,
       },
@@ -328,6 +330,7 @@ export class PersonalService {
         amount: dto.amount === undefined ? undefined : new Prisma.Decimal(dto.amount),
         currency: dto.currency,
         date: dto.date ? new Date(dto.date) : undefined,
+        isPaid: dto.isPaid,
         description: dto.description,
         merchant: dto.merchant,
       },

@@ -141,6 +141,7 @@ model FinanceTransaction {
   amount      Decimal                @db.Decimal(12, 2)
   currency    String                 @default("ARS")
   date        DateTime               @default(now())
+  isPaid      Boolean                @default(true) @map("is_paid")
   description String?
   merchant    String?
   notes       String?
