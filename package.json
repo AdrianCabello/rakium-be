@@ -27,6 +27,7 @@
     "storage:rewrite-gcs-urls": "ts-node scripts/rewrite-storage-urls-to-gcs.ts",
     "smoke:api": "ts-node scripts/smoke-api.ts",
     "dokploy:preflight": "ts-node scripts/dokploy-preflight.ts",
+    "prospect:places": "ts-node scripts/prospect-google-places.ts",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
