@@ -62,8 +62,15 @@ export class LeadsService {
           name: true,
           city: true,
           category: true,
+          address: true,
           latitude: true,
           longitude: true,
+          phone: true,
+          email: true,
+          website: true,
+          instagram: true,
+          googleMapsUrl: true,
+          digitalPresenceScore: true,
           status: true,
           priority: true,
           needsWebsite: true,
@@ -255,7 +262,9 @@ export class LeadsService {
 
   private buildWhere(query: LeadQueryDto): Prisma.LeadWhereInput {
     const search = String(query.search ?? '').trim();
+    const contactWhere = this.buildContactWhere(query.contact);
     return {
+      ...(contactWhere ? { AND: [contactWhere] } : {}),
       ...(query.city ? { city: { equals: query.city, mode: 'insensitive' } } : {}),
       ...(query.category ? { category: { equals: query.category, mode: 'insensitive' } } : {}),
       ...(query.status ? { status: query.status } : {}),
@@ -272,6 +281,25 @@ export class LeadsService {
           }
         : {}),
     };
+  }
+
+  private buildContactWhere(contact?: LeadQueryDto['contact']): Prisma.LeadWhereInput | null {
+    const hasValue = (field: 'instagram' | 'email' | 'phone'): Prisma.LeadWhereInput => ({
+      [field]: { not: null },
+      NOT: { [field]: '' },
+    });
+
+    if (contact === 'instagram' || contact === 'email' || contact === 'phone') {
+      return hasValue(contact);
+    }
+
+    if (contact === 'any') {
+      return {
+        OR: [hasValue('instagram'), hasValue('email'), hasValue('phone')],
+      };
+    }
+
+    return null;
   }
 
   private toLeadData(lead: Partial<CreateLeadDto>): Prisma.LeadUncheckedUpdateInput {

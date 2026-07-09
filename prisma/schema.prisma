@@ -280,6 +280,7 @@ model Lead {
   priority             Int            @default(2)
   status               LeadStatus     @default(NEW)
   assignedTo           String?        @map("assigned_to")
+  assignedSellerId     String?        @map("assigned_seller_id")
   tags                 Json?
   checklist            Json?
   estimatedValue       Int?           @map("estimated_value")
@@ -291,12 +292,52 @@ model Lead {
   createdAt            DateTime       @default(now()) @map("created_at")
   updatedAt            DateTime       @updatedAt @map("updated_at")
   activities           LeadActivity[]
+  seller               Seller?        @relation(fields: [assignedSellerId], references: [id], onDelete: SetNull)
+  sellerActivities     SellerActivity[]
+  instagramConversations InstagramConversation[]
 
   @@unique([source, sourceId], name: "unique_lead_source")
   @@index([city])
   @@index([category])
   @@index([status])
+  @@index([assignedSellerId])
   @@map("leads")
+}
+
+model InstagramConversation {
+  id              String                      @id @default(uuid())
+  senderId        String                      @unique @map("sender_id")
+  username        String?
+  leadId          String?                     @map("lead_id")
+  status          InstagramConversationStatus @default(UNMATCHED)
+  lastMessageText String?                     @map("last_message_text")
+  lastMessageAt   DateTime?                   @map("last_message_at")
+  rawProfile      Json?                       @map("raw_profile")
+  createdAt       DateTime                    @default(now()) @map("created_at")
+  updatedAt       DateTime                    @updatedAt @map("updated_at")
+  lead            Lead?                       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  messages        InstagramMessage[]
+
+  @@index([leadId])
+  @@index([status])
+  @@index([lastMessageAt])
+  @@map("instagram_conversations")
+}
+
+model InstagramMessage {
+  id             String                    @id @default(uuid())
+  conversationId String                    @map("conversation_id")
+  messageId      String                    @unique @map("message_id")
+  direction      InstagramMessageDirection
+  text           String?
+  attachments    Json?
+  raw            Json?
+  receivedAt     DateTime                  @default(now()) @map("received_at")
+  conversation   InstagramConversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, receivedAt])
+  @@index([direction])
+  @@map("instagram_messages")
 }
 
 model LeadActivity {
@@ -312,6 +353,54 @@ model LeadActivity {
   @@index([leadId])
   @@index([type])
   @@map("lead_activities")
+}
+
+model Seller {
+  id                String           @id @default(uuid())
+  name              String
+  email             String?          @unique
+  phone             String?
+  instagram         String?
+  linkedin          String?
+  city              String?
+  role              String?
+  status            SellerStatus     @default(TRAINING)
+  profileChecklist  Json?            @map("profile_checklist")
+  salesPlaybook     Json?            @map("sales_playbook")
+  notes             String?
+  dailyTarget       Int?             @default(30) @map("daily_target")
+  weeklyVisitTarget Int?             @default(10) @map("weekly_visit_target")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  leads             Lead[]
+  activities        SellerActivity[]
+
+  @@index([status])
+  @@index([city])
+  @@map("sellers")
+}
+
+model SellerActivity {
+  id              String             @id @default(uuid())
+  sellerId        String             @map("seller_id")
+  leadId          String?            @map("lead_id")
+  type            SellerActivityType
+  channel         String?
+  note            String?
+  outcome         String?
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  occurredAt      DateTime           @default(now()) @map("occurred_at")
+  nextFollowUpAt  DateTime?          @map("next_follow_up_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  seller          Seller             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  lead            Lead?              @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([sellerId, occurredAt])
+  @@index([leadId])
+  @@index([type])
+  @@map("seller_activities")
 }
 
 enum UserRole {
@@ -415,4 +504,35 @@ enum LeadActivityType {
   REPLIED
   FOLLOW_UP
   STATUS_CHANGE
+}
+
+enum SellerStatus {
+  TRAINING
+  ACTIVE
+  PAUSED
+  INACTIVE
+}
+
+enum SellerActivityType {
+  INSTAGRAM_SENT
+  LINKEDIN_SENT
+  WHATSAPP_SENT
+  EMAIL_SENT
+  CALLED
+  VISITED
+  MEETING
+  REPLIED
+  FOLLOW_UP
+  NOTE
+}
+
+enum InstagramConversationStatus {
+  UNMATCHED
+  MATCHED
+  ARCHIVED
+}
+
+enum InstagramMessageDirection {
+  INBOUND
+  OUTBOUND
 }

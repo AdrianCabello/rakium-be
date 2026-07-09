@@ -5,7 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { PrismaExceptionFilter } from './filters/prisma-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   // Prefijo global para todas las rutas API (coincide con healthcheckPath en Railway)
   app.setGlobalPrefix('api');

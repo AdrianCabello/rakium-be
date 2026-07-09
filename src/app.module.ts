@@ -11,6 +11,8 @@ import { VideosModule } from './videos/videos.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PersonalModule } from './personal/personal.module';
 import { LeadsModule } from './leads/leads.module';
+import { SellersModule } from './sellers/sellers.module';
+import { InstagramModule } from './instagram/instagram.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { LeadsModule } from './leads/leads.module';
     VideosModule,
     PersonalModule,
     LeadsModule,
+    SellersModule,
+    InstagramModule,
   ],
 })
 export class AppModule {}
