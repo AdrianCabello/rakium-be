@@ -18,7 +18,7 @@ DUMP_FILE="${1:-}"
 
 if [ -z "$DUMP_FILE" ]; then
     echo -e "${RED}Error: debes indicar la ruta del dump local${NC}"
-    echo "Uso: ./scripts/import-via-init-script.sh ./dumps/railway-dump-YYYYMMDD-HHMMSS.sql"
+    echo "Uso: ./scripts/import-via-init-script.sh ./dumps/production-dump-YYYYMMDD-HHMMSS.sql"
     exit 1
 fi
 

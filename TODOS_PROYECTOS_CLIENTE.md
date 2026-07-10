@@ -99,7 +99,7 @@ async findAllByClientId(clientId: string, paginationDto: PaginationDto): Promise
 
 ### **Endpoint Verificado:**
 ```bash
-curl -X GET "https://rakium-be-production.up.railway.app/projects/client/78abe353-1728-49b0-b268-1d2ad5786317?page=1&limit=100"
+curl -X GET "https://api.rakium.dev/api/projects/client/78abe353-1728-49b0-b268-1d2ad5786317?page=1&limit=100"
 ```
 
 **Respuesta Exitosa:**
@@ -147,15 +147,15 @@ const draftProjects = data.data.filter(p => p.status === 'DRAFT');
 ```
 
 ### **URLs de Ejemplo:**
-- `https://rakium-be-production.up.railway.app/projects/client/78abe353-1728-49b0-b268-1d2ad5786317`
-- `https://rakium-be-production.up.railway.app/projects/client/78abe353-1728-49b0-b268-1d2ad5786317?page=1&limit=100`
+- `https://api.rakium.dev/api/projects/client/78abe353-1728-49b0-b268-1d2ad5786317`
+- `https://api.rakium.dev/api/projects/client/78abe353-1728-49b0-b268-1d2ad5786317?page=1&limit=100`
 
 ## 🚀 **Estado del Deploy**
 
 ### **✅ Deploy Completado:**
 - **Commit**: `48f3d2e`
 - **Push**: Exitoso a `origin/main`
-- **Railway**: Despliegue automático completado
+- **Dokploy**: api.rakium.dev
 - **Pruebas**: Endpoint funcionando correctamente
 
 ## 🎉 **Resultado Final**
@@ -173,4 +173,4 @@ const draftProjects = data.data.filter(p => p.status === 'DRAFT');
 - `ARCHIVED` - Archivados
 - Cualquier estado futuro
 
-**🎯 El endpoint ahora devuelve todos los proyectos del cliente sin importar su estado!** 
+**🎯 El endpoint ahora devuelve todos los proyectos del cliente sin importar su estado!**

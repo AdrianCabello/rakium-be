@@ -8,7 +8,7 @@ El endpoint `GET /projects/:projectId/videos/public` **YA ESTÁ FUNCIONANDO** co
 
 ### **✅ Endpoint Verificado:**
 ```bash
-curl -X GET "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos/public?page=1&limit=10"
+curl -X GET "https://api.rakium.dev/api/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos/public?page=1&limit=10"
 ```
 
 **Respuesta Exitosa:**
@@ -95,15 +95,15 @@ console.log(data.data);
 ```
 
 ### **URLs de Ejemplo:**
-- `https://rakium-be-production.up.railway.app/projects/1/videos/public`
-- `https://rakium-be-production.up.railway.app/projects/1/videos/public?page=1&limit=10`
+- `https://api.rakium.dev/api/projects/1/videos/public`
+- `https://api.rakium.dev/api/projects/1/videos/public?page=1&limit=10`
 
 ## 🚀 **Estado del Deploy**
 
 ### **✅ Deploy Completado:**
 - **Commit**: `67d5759`
 - **Push**: Exitoso a `origin/main`
-- **Railway**: Despliegue automático completado
+- **Dokploy**: api.rakium.dev
 - **Pruebas**: Todos los endpoints funcionando correctamente
 
 ## 🎉 **Resultado Final**
@@ -120,4 +120,4 @@ console.log(data.data);
 - Validación de proyectos publicados
 - Validación de URLs de YouTube
 
-**🎯 El endpoint `GET /projects/:projectId/videos/public` está funcionando correctamente y es completamente público!** 
+**🎯 El endpoint `GET /projects/:projectId/videos/public` está funcionando correctamente y es completamente público!**

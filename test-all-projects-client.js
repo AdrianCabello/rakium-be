@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 // Configuración
-const BASE_URL = 'https://rakium-be-production.up.railway.app';
+const BASE_URL = 'https://api.rakium.dev/api';
 const CLIENT_ID = '78abe353-1728-49b0-b268-1d2ad5786317';
 
 async function testAllProjectsClient() {

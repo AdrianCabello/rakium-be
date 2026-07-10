@@ -45,7 +45,7 @@ if (project.status !== 'PUBLISHED') {
 
 ### **✅ Endpoint Público Funcionando:**
 ```bash
-curl -X GET "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos?page=1&limit=10"
+curl -X GET "https://api.rakium.dev/api/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos?page=1&limit=10"
 ```
 
 **Respuesta:**
@@ -74,7 +74,7 @@ curl -X GET "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-
 
 ### **✅ Video Específico Funcionando:**
 ```bash
-curl -X GET "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos/64db1a9e-aad2-4ec2-afd5-5628a090877a"
+curl -X GET "https://api.rakium.dev/api/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos/64db1a9e-aad2-4ec2-afd5-5628a090877a"
 ```
 
 **Respuesta:**
@@ -93,7 +93,7 @@ curl -X GET "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-
 
 ### **✅ Endpoints Protegidos Siguen Protegidos:**
 ```bash
-curl -X POST "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos" \
+curl -X POST "https://api.rakium.dev/api/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos" \
   -H "Content-Type: application/json" \
   -d '{"title":"Test","youtubeUrl":"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}'
 ```
@@ -115,8 +115,8 @@ curl -X POST "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e
 - Los endpoints de modificación siguen protegidos
 
 ### **✅ URLs Funcionando:**
-- `https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos?page=1&limit=10` ✅
-- `https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos/64db1a9e-aad2-4ec2-afd5-5628a090877a` ✅
+- `https://api.rakium.dev/api/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos?page=1&limit=10` ✅
+- `https://api.rakium.dev/api/projects/c96efe86-5a1e-4e91-a206-dbd7e0a77ed9/videos/64db1a9e-aad2-4ec2-afd5-5628a090877a` ✅
 
 ### **✅ Seguridad Mantenida:**
 - Solo lectura pública (GET)
@@ -128,7 +128,7 @@ curl -X POST "https://rakium-be-production.up.railway.app/projects/c96efe86-5a1e
 
 - ✅ **Commit**: `cb9f1cb`
 - ✅ **Push**: Exitoso a `origin/main`
-- ✅ **Railway**: Despliegue automático completado
+- ✅ **Dokploy**: api.rakium.dev
 - ✅ **Pruebas**: Endpoints funcionando correctamente
 
-**🎯 Los videos de proyectos ahora son accesibles públicamente sin autenticación!** 
+**🎯 Los videos de proyectos ahora son accesibles públicamente sin autenticación!**

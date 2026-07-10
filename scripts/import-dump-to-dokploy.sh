@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para importar dump de Railway a Dokploy
+# Script para importar un dump SQL a Dokploy
 # Uso: ./scripts/import-dump-to-dokploy.sh [archivo-dump.sql] [DATABASE_URL_DOKPLOY]
 
 set -e
@@ -20,7 +20,7 @@ if [ -z "$1" ]; then
     echo "Uso: ./scripts/import-dump-to-dokploy.sh [archivo-dump.sql] [DATABASE_URL_DOKPLOY]"
     echo ""
     echo "Ejemplo:"
-    echo "  ./scripts/import-dump-to-dokploy.sh ./dumps/railway-dump-20250127.sql 'postgresql://user:pass@host:5432/db?schema=public'"
+    echo "  ./scripts/import-dump-to-dokploy.sh ./dumps/production-dump-20250127.sql 'postgresql://user:pass@host:5432/db?schema=public'"
     exit 1
 fi
 
@@ -78,7 +78,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo -e "${GREEN}✅ Dump importado exitosamente!${NC}"
     echo ""
-    echo "La base de datos de Dokploy ahora tiene los datos de Railway."
+    echo "La base de datos de Dokploy fue actualizada con el dump."
     echo ""
     echo "Próximos pasos:"
     echo "1. Verifica que la aplicación en Dokploy esté configurada con la DATABASE_URL correcta"

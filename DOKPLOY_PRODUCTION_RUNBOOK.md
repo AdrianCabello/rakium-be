@@ -1,37 +1,59 @@
 # Dokploy production runbook
 
-This runbook is the checklist for moving Rakium BE from Railway to Dokploy without changing production until the new environment is verified.
+This runbook documents the current Rakium BE production setup on Dokploy.
 
 ## Scope
 
-- Keep Railway running until Dokploy has passed smoke tests.
-- Deploy the backend from the Dockerfile in this repository.
-- Run Prisma migrations on container startup with `npm run start:docker`.
-- Do not commit dumps, tokens, passwords, service account JSON, or production connection strings.
-
-## Recommended Dokploy app
-
-- App name: `rakium-be`
+- Production API domain: `https://api.rakium.dev`
+- Backend app: `rakium-be`
 - Build type: Dockerfile
 - Dockerfile path: `Dockerfile`
 - Docker context: `.`
-- Branch: `main` after the deployment PR is merged
+- Branch: `main`
 - Internal port: `3000`
 - Health check path: `/api`
 
-## Required environment variables
+## Runtime
+
+The Docker image starts with:
+
+```bash
+npm run start:docker
+```
+
+That command runs Prisma migrations before starting the compiled Nest API:
+
+```bash
+prisma migrate deploy && node dist/src/main
+```
+
+## Required Environment Variables
 
 ```bash
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB?schema=public
-JWT_SECRET=<generate-a-long-random-secret>
+JWT_SECRET=<long-random-secret>
 JWT_EXPIRATION=7d
 PORT=3000
 CORS_ORIGINS=https://rakium.dev,https://www.rakium.dev
+PUBLIC_API_URL=https://api.rakium.dev/api
 ```
 
-## Storage mode
+## Optional Instagram Messaging Variables
 
-Keep Backblaze for the first Dokploy cutover unless we decide to switch storage in the same release:
+```bash
+META_WEBHOOK_VERIFY_TOKEN=<same-token-used-in-meta-webhook-config>
+META_APP_SECRET=<meta-app-secret>
+```
+
+Webhook URL:
+
+```text
+https://api.rakium.dev/api/integrations/instagram/webhook
+```
+
+## Storage
+
+Backblaze:
 
 ```bash
 STORAGE_PROVIDER=backblaze
@@ -42,7 +64,7 @@ BACKBLAZE_ENDPOINT=<endpoint>
 BACKBLAZE_REGION=<region>
 ```
 
-When Google Cloud Storage is ready:
+Google Cloud Storage:
 
 ```bash
 STORAGE_PROVIDER=gcs
@@ -53,55 +75,24 @@ GCS_SERVICE_ACCOUNT_JSON=<escaped-service-account-json>
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
 ```
 
-## Preflight before first deploy
+## Preflight
 
-1. Confirm Railway is still serving production.
-2. Create a fresh database backup.
-3. Import the database into Dokploy Postgres using `DOKPLOY_DB_MIGRATION_RUNBOOK.md`.
-4. Run the automated preflight:
+Before a production deploy that touches database constraints or storage:
 
 ```bash
 DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DB?schema=public' npm run dokploy:preflight
 ```
 
-This checks table counts, duplicate project ordering per client, and storage environment completeness. The duplicate-order check is the blocker because the schema enforces a unique `(client_id, order)` index.
-
-You can also run the SQL manually:
-
-```sql
-SELECT client_id, "order", COUNT(*)
-FROM projects
-GROUP BY client_id, "order"
-HAVING COUNT(*) > 1;
-```
-
-If any rows are returned, fix the duplicate ordering before running the migration that creates the unique `(client_id, order)` index.
-
-5. Add all Dokploy environment variables.
-6. Deploy the app.
-7. Run:
+## Smoke Test
 
 ```bash
-SMOKE_API_URL=https://<dokploy-api-domain>/api npm run smoke:api
+SMOKE_API_URL=https://api.rakium.dev/api npm run smoke:api
 ```
 
-Use `SMOKE_UPLOAD_FILE=./some-image.jpg` only after storage credentials are configured.
-
-## Cutover
-
-1. Keep Railway active.
-2. Point the test frontend to the Dokploy API domain.
-3. Validate login, public project pages, admin project list, and uploads.
-4. Update production frontend API URL only after the smoke test passes.
-5. Watch logs for the first deploy window.
+Use `SMOKE_UPLOAD_FILE=./some-image.jpg` only after storage credentials are confirmed.
 
 ## Rollback
 
-1. Repoint frontend/API traffic to Railway.
-2. If only storage changed, set `STORAGE_PROVIDER=backblaze` and redeploy.
-3. If DB writes happened on Dokploy during the failed window, decide whether to replay them or restore the last Railway backup before switching traffic back.
-4. Redeploy the previous known-good commit in Dokploy if the issue is code-related.
-
-## Server actions still pending
-
-No server action is done by this PR. Before touching Railway, Dokploy, DNS, or production env vars, announce the exact action and expected rollback path.
+1. Redeploy the previous known-good commit in Dokploy.
+2. Keep the same `DATABASE_URL` unless the rollback specifically requires DB restore.
+3. Watch Dokploy logs and run the smoke test again.

@@ -49,7 +49,7 @@ This Bruno collection contains the main Rakium API endpoints for local and produ
 
 ## URLs
 
-- Production: `https://rakium-be-production.up.railway.app`
+- Production: `https://api.rakium.dev/api`
 - Local: `http://localhost:3000`
 - Swagger: `{{baseUrl}}/api`
 

@@ -67,11 +67,11 @@ npx prisma studio
 ```
 
 ## Despliegue
-El proyecto se despliega automáticamente en Railway cuando se hace push a la rama main.
+El proyecto corre en Dokploy en `https://api.rakium.dev`. Los deploys se disparan desde la integracion de Dokploy contra `main`.
 
 ### CI/CD
 - GitHub Actions para integración continua
-- Despliegue automático en Railway
+- Build Dockerfile en Dokploy
 - Tests automatizados
 
 ### Variables de Entorno Requeridas

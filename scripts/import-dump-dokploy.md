@@ -22,13 +22,13 @@ docker run --rm -i \
   -v /tmp/rakium-dumps:/dumps \
   postgres:16-alpine \
   psql 'postgresql://USER:PASSWORD@DOKPLOY_DB_HOST:5432/DB?schema=public' \
-  < /dumps/railway-dump-YYYYMMDD-HHMMSS.sql
+  < /dumps/production-dump-YYYYMMDD-HHMMSS.sql
 ```
 
 Despues de importar, elimina el dump:
 
 ```bash
-rm -f /tmp/rakium-dumps/railway-dump-*.sql
+rm -f /tmp/rakium-dumps/production-dump-*.sql
 ```
 
 ## Verificacion

@@ -20,7 +20,7 @@ if [ -z "$1" ]; then
     echo "Uso: ./scripts/import-dump-via-dokploy.sh [archivo-dump.sql] [DATABASE_URL]"
     echo ""
     echo "Ejemplo:"
-    echo "  ./scripts/import-dump-via-dokploy.sh railway-dump.sql 'postgresql://user:password@dokploy-db-host:5432/rakium_production'"
+    echo "  ./scripts/import-dump-via-dokploy.sh production-dump.sql 'postgresql://user:password@dokploy-db-host:5432/rakium_production'"
     exit 1
 fi
 
@@ -80,7 +80,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo -e "${GREEN}✅ Dump importado exitosamente!${NC}"
     echo ""
-    echo "La base de datos de Dokploy ahora tiene los datos de Railway."
+    echo "La base de datos de Dokploy fue actualizada con el dump."
     echo ""
     echo "Próximos pasos:"
     echo "1. Verifica que la aplicación en Dokploy esté configurada con la DATABASE_URL correcta"
