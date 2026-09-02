@@ -35,8 +35,23 @@ model Client {
   financeAccounts     FinanceAccount[]
   financeCategories   FinanceCategory[]
   financeTransactions FinanceTransaction[]
+  contentMetrics      ContentMetric[]
 
   @@map("Client")
+}
+
+model ContentMetric {
+  id         String   @id @default(uuid())
+  clientId   String   @map("client_id")
+  contentKey String   @map("content_key")
+  shareCount Int      @default(0) @map("share_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, contentKey], name: "unique_content_metric_per_client")
+  @@index([clientId])
+  @@map("content_metrics")
 }
 
 model LifeArea {
@@ -257,43 +272,43 @@ model Video {
 }
 
 model Lead {
-  id                   String         @id @default(uuid())
-  name                 String
-  city                 String
-  region               String?
-  category             String?
-  address              String?
-  latitude             Float?
-  longitude            Float?
-  phone                String?
-  email                String?
-  website              String?
-  instagram            String?
-  facebook             String?
-  googleMapsUrl        String?        @map("google_maps_url")
-  source               LeadSource     @default(MANUAL)
-  sourceId             String?        @map("source_id")
-  sourceUrl            String?        @map("source_url")
-  digitalPresenceScore Int            @default(0) @map("digital_presence_score")
-  needsWebsite         Boolean        @default(false) @map("needs_website")
-  instagramQuality     LeadQuality?   @map("instagram_quality")
-  priority             Int            @default(2)
-  status               LeadStatus     @default(NEW)
-  assignedTo           String?        @map("assigned_to")
-  assignedSellerId     String?        @map("assigned_seller_id")
-  tags                 Json?
-  checklist            Json?
-  estimatedValue       Int?           @map("estimated_value")
-  suggestedMessage     String?        @map("suggested_message")
-  convertedClientId    String?        @map("converted_client_id")
-  notes                String?
-  lastContactedAt      DateTime?      @map("last_contacted_at")
-  nextFollowUpAt       DateTime?      @map("next_follow_up_at")
-  createdAt            DateTime       @default(now()) @map("created_at")
-  updatedAt            DateTime       @updatedAt @map("updated_at")
-  activities           LeadActivity[]
-  seller               Seller?        @relation(fields: [assignedSellerId], references: [id], onDelete: SetNull)
-  sellerActivities     SellerActivity[]
+  id                     String                  @id @default(uuid())
+  name                   String
+  city                   String
+  region                 String?
+  category               String?
+  address                String?
+  latitude               Float?
+  longitude              Float?
+  phone                  String?
+  email                  String?
+  website                String?
+  instagram              String?
+  facebook               String?
+  googleMapsUrl          String?                 @map("google_maps_url")
+  source                 LeadSource              @default(MANUAL)
+  sourceId               String?                 @map("source_id")
+  sourceUrl              String?                 @map("source_url")
+  digitalPresenceScore   Int                     @default(0) @map("digital_presence_score")
+  needsWebsite           Boolean                 @default(false) @map("needs_website")
+  instagramQuality       LeadQuality?            @map("instagram_quality")
+  priority               Int                     @default(2)
+  status                 LeadStatus              @default(NEW)
+  assignedTo             String?                 @map("assigned_to")
+  assignedSellerId       String?                 @map("assigned_seller_id")
+  tags                   Json?
+  checklist              Json?
+  estimatedValue         Int?                    @map("estimated_value")
+  suggestedMessage       String?                 @map("suggested_message")
+  convertedClientId      String?                 @map("converted_client_id")
+  notes                  String?
+  lastContactedAt        DateTime?               @map("last_contacted_at")
+  nextFollowUpAt         DateTime?               @map("next_follow_up_at")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  activities             LeadActivity[]
+  seller                 Seller?                 @relation(fields: [assignedSellerId], references: [id], onDelete: SetNull)
+  sellerActivities       SellerActivity[]
   instagramConversations InstagramConversation[]
 
   @@unique([source, sourceId], name: "unique_lead_source")
@@ -381,21 +396,21 @@ model Seller {
 }
 
 model SellerActivity {
-  id              String             @id @default(uuid())
-  sellerId        String             @map("seller_id")
-  leadId          String?            @map("lead_id")
-  type            SellerActivityType
-  channel         String?
-  note            String?
-  outcome         String?
-  address         String?
-  latitude        Float?
-  longitude       Float?
-  occurredAt      DateTime           @default(now()) @map("occurred_at")
-  nextFollowUpAt  DateTime?          @map("next_follow_up_at")
-  createdAt       DateTime           @default(now()) @map("created_at")
-  seller          Seller             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  lead            Lead?              @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  id             String             @id @default(uuid())
+  sellerId       String             @map("seller_id")
+  leadId         String?            @map("lead_id")
+  type           SellerActivityType
+  channel        String?
+  note           String?
+  outcome        String?
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  occurredAt     DateTime           @default(now()) @map("occurred_at")
+  nextFollowUpAt DateTime?          @map("next_follow_up_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  seller         Seller             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  lead           Lead?              @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
   @@index([sellerId, occurredAt])
   @@index([leadId])

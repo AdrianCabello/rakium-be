@@ -13,6 +13,7 @@ import { PersonalModule } from './personal/personal.module';
 import { LeadsModule } from './leads/leads.module';
 import { SellersModule } from './sellers/sellers.module';
 import { InstagramModule } from './instagram/instagram.module';
+import { ContentMetricsModule } from './content-metrics/content-metrics.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { InstagramModule } from './instagram/instagram.module';
     LeadsModule,
     SellersModule,
     InstagramModule,
+    ContentMetricsModule,
   ],
 })
 export class AppModule {}
