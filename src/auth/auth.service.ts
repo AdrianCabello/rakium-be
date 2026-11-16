@@ -48,7 +48,7 @@ export class AuthService {
   async requestPasswordReset(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true },
+      select: { id: true, email: true, client: { select: { name: true, siteUrl: true } } },
     });
 
     if (!user) {
@@ -81,7 +81,8 @@ export class AuthService {
 
     await this.mailService.sendPasswordResetEmail(
       user.email,
-      this.buildPasswordResetUrl(token),
+      this.buildPasswordResetUrl(token, user.client?.siteUrl),
+      { brandName: user.client?.name },
     );
 
     return this.passwordResetRequestResponse();
@@ -124,10 +125,15 @@ export class AuthService {
     return createHash('sha256').update(token).digest('hex');
   }
 
-  private buildPasswordResetUrl(token: string) {
-    const baseUrl =
-      this.configService.get<string>('PASSWORD_RESET_URL_BASE') ||
-      'https://rakium.dev/reset-password';
+  /**
+   * Si el cliente tiene sitio propio (ej. celinagstudio.com), el link va a su panel;
+   * si no, a la pantalla de Rakium configurada en PASSWORD_RESET_URL_BASE.
+   */
+  private buildPasswordResetUrl(token: string, clientSiteUrl?: string | null) {
+    const baseUrl = clientSiteUrl
+      ? `${clientSiteUrl.replace(/\/+$/, '')}/admin/restablecer`
+      : this.configService.get<string>('PASSWORD_RESET_URL_BASE') ||
+        'https://rakium.dev/reset-password';
     const separator = baseUrl.includes('?') ? '&' : '?';
     return `${baseUrl}${separator}token=${encodeURIComponent(token)}`;
   }
