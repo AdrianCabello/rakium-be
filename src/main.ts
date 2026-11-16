@@ -41,6 +41,8 @@ async function bootstrap() {
     'https://adriancabello.dev',
     'https://www.adriancabello.dev',
     'https://adriancabello.github.io',
+    'https://celinagstudio.com',
+    'https://www.celinagstudio.com',
   ];
   const extraOrigins = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? [];
   const origins = [...new Set([...allowedOrigins, ...extraOrigins])];

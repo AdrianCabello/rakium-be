@@ -358,6 +358,22 @@ export class CreateProjectDto {
   demoUrl?: string;
 
   @ApiProperty({
+    description: 'Servicio del studio al que pertenece el trabajo (antes/después)',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  serviceId?: string;
+
+  @ApiProperty({
+    description: 'Profesional del studio que hizo el trabajo',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  professionalId?: string;
+
+  @ApiProperty({
     description: 'Tecnologías utilizadas en el proyecto (separadas por comas)',
     example: 'Angular, TypeScript, Firebase',
     required: false,

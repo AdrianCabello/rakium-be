@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max, MaxLength, IsDateString, ValidateNested, IsObject, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Min, Max, MaxLength, IsDateString, ValidateNested, IsObject, IsNotEmpty, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type, Transform } from 'class-transformer';
 import { ProjectCategory, ProjectStatus, ProjectType } from '@prisma/client';
@@ -356,6 +356,22 @@ export class UpdateProjectDto {
   @IsString()
   @IsOptional()
   demoUrl?: string;
+
+  @ApiProperty({
+    description: 'Servicio del studio al que pertenece el trabajo (antes/después)',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  serviceId?: string | null;
+
+  @ApiProperty({
+    description: 'Profesional del studio que hizo el trabajo',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  professionalId?: string | null;
 
   @ApiProperty({
     description: 'Tecnologías utilizadas en el proyecto (separadas por comas)',

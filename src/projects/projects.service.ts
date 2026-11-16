@@ -21,6 +21,8 @@ export class ProjectsService {
       throw new NotFoundException(`No se encontró ningún cliente con el ID: ${createProjectDto.clientId}`);
     }
 
+    await this.ensureStudioRefsBelongToClient(createProjectDto.clientId, createProjectDto);
+
     // Preparar los datos del proyecto - solo incluir campos válidos del DTO
     const projectData: Prisma.ProjectCreateInput = {
       name: createProjectDto.name,
@@ -60,6 +62,8 @@ export class ProjectsService {
       technologies: createProjectDto.technologies as unknown as Prisma.JsonValue,
       ...(userId && { creator: { connect: { id: userId } } }),
       ...(createProjectDto.coverImageId && { coverImage: { connect: { id: createProjectDto.coverImageId } } }),
+      ...(createProjectDto.serviceId && { service: { connect: { id: createProjectDto.serviceId } } }),
+      ...(createProjectDto.professionalId && { professional: { connect: { id: createProjectDto.professionalId } } }),
     };
 
     // Filtrar campos undefined/null
@@ -347,6 +351,14 @@ export class ProjectsService {
       return this.handleOrderUpdate(id, updateProjectDto);
     }
 
+    if (updateProjectDto.serviceId || updateProjectDto.professionalId) {
+      const project = await this.prisma.project.findUnique({ where: { id }, select: { clientId: true } });
+      if (!project) {
+        throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+      }
+      await this.ensureStudioRefsBelongToClient(updateProjectDto.clientId ?? project.clientId, updateProjectDto);
+    }
+
     // Preparar los datos de actualización (sin orden)
     const updateData: Prisma.ProjectUpdateInput = {
       name: updateProjectDto.name,
@@ -387,6 +399,14 @@ export class ProjectsService {
           : updateProjectDto.coverImageId
             ? { coverImage: { connect: { id: updateProjectDto.coverImageId } } }
             : {})),
+      ...(updateProjectDto.serviceId !== undefined && {
+        service: updateProjectDto.serviceId ? { connect: { id: updateProjectDto.serviceId } } : { disconnect: true },
+      }),
+      ...(updateProjectDto.professionalId !== undefined && {
+        professional: updateProjectDto.professionalId
+          ? { connect: { id: updateProjectDto.professionalId } }
+          : { disconnect: true },
+      }),
     };
 
     // Filtrar campos undefined (pero permitir null explícito)
@@ -404,6 +424,21 @@ export class ProjectsService {
         },
       },
     });
+  }
+
+  /** Un trabajo solo puede asociarse a servicios y profesionales de su mismo cliente. */
+  private async ensureStudioRefsBelongToClient(
+    clientId: string,
+    refs: { serviceId?: string | null; professionalId?: string | null },
+  ) {
+    const [service, professional] = await Promise.all([
+      refs.serviceId ? this.prisma.service.count({ where: { id: refs.serviceId, clientId } }) : Promise.resolve(1),
+      refs.professionalId
+        ? this.prisma.professional.count({ where: { id: refs.professionalId, clientId } })
+        : Promise.resolve(1),
+    ]);
+    if (!service) throw new BadRequestException('El servicio no pertenece al cliente del proyecto');
+    if (!professional) throw new BadRequestException('La profesional no pertenece al cliente del proyecto');
   }
 
   private async handleOrderUpdate(id: string, updateProjectDto: UpdateProjectDto) {
