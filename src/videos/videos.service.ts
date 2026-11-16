@@ -5,6 +5,14 @@ import { UpdateVideoDto } from '../dto/update-video.dto';
 import { PaginationDto, PaginatedResponseDto } from '../dto/pagination.dto';
 import { getPaginationParams, createPaginatedResponse } from '../utils/pagination.util';
 
+const YOUTUBE_URL = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)[a-zA-Z0-9_-]{11}(.*)?$/;
+const INSTAGRAM_URL = /^(https?:\/\/)?(www\.)?instagram\.com\/(reel|reels|p|tv)\/[a-zA-Z0-9_-]+\/?(\?.*)?$/;
+
+/** Videos de YouTube (incluye Shorts) o reels/posts de Instagram. El campo sigue llamándose youtubeUrl. */
+export function isSupportedVideoUrl(url: string): boolean {
+  return YOUTUBE_URL.test(url) || INSTAGRAM_URL.test(url);
+}
+
 @Injectable()
 export class VideosService {
   constructor(private prisma: PrismaService) {}
@@ -27,10 +35,9 @@ export class VideosService {
       throw new BadRequestException('No se pueden agregar más de 10 videos al proyecto');
     }
 
-    // Validar URL de YouTube
-    const youtubeUrlPattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[a-zA-Z0-9_-]{11}(.*)?$/;
-    if (!youtubeUrlPattern.test(createVideoDto.youtubeUrl)) {
-      throw new BadRequestException('La URL debe ser una URL válida de YouTube');
+    // Validar URL de YouTube o Instagram
+    if (!isSupportedVideoUrl(createVideoDto.youtubeUrl)) {
+      throw new BadRequestException('La URL debe ser un video de YouTube o un reel/post de Instagram');
     }
 
     // Obtener el último orden
@@ -156,12 +163,9 @@ export class VideosService {
       throw new NotFoundException(`Video with ID ${id} not found in project ${projectId}`);
     }
 
-    // Validar URL de YouTube si se está actualizando
-    if (updateVideoDto.youtubeUrl) {
-      const youtubeUrlPattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)[a-zA-Z0-9_-]{11}(.*)?$/;
-      if (!youtubeUrlPattern.test(updateVideoDto.youtubeUrl)) {
-        throw new BadRequestException('La URL debe ser una URL válida de YouTube');
-      }
+    // Validar URL de YouTube o Instagram si se está actualizando
+    if (updateVideoDto.youtubeUrl && !isSupportedVideoUrl(updateVideoDto.youtubeUrl)) {
+      throw new BadRequestException('La URL debe ser un video de YouTube o un reel/post de Instagram');
     }
 
     return this.prisma.video.update({
