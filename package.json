@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node prisma/seed.ts",
     "seed:adrian-mvp": "ts-node scripts/seed-adrian-mvp.ts",
+    "seed:celinagstudio": "ts-node scripts/seed-celinagstudio.ts",
     "assign-lautarovulcano": "ts-node scripts/assign-lautarovulcano-client.ts",
     "repair:orphan-projects": "ts-node scripts/repair-orphan-projects.ts",
     "storage:plan-gcs-migration": "ts-node scripts/plan-backblaze-to-gcs-migration.ts",
@@ -58,6 +59,7 @@
     "passport-local": "^1.0.0",
     "prisma": "^5.10.2",
     "reflect-metadata": "^0.1.13",
+    "resend": "^6.12.4",
     "rxjs": "^7.8.1",
     "sharp": "^0.34.2",
     "swagger-ui-express": "5.0.1"

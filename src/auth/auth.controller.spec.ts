@@ -10,13 +10,18 @@ describe('AuthController auth metadata', () => {
     expect(guards).toContain(JwtAuthGuard);
   });
 
-  it('keeps login public and protects profile endpoints', () => {
+  it('keeps login and password reset public and protects profile endpoints', () => {
     expect(isPublic('login')).toBe(true);
+    expect(isPublic('forgotPassword')).toBe(true);
+    expect(isPublic('resetPassword')).toBe(true);
     expect(isPublic('getProfile')).toBeFalsy();
     expect(isPublic('testAuth')).toBeFalsy();
   });
 
   function isPublic(methodName: keyof AuthController) {
-    return Reflect.getMetadata(IS_PUBLIC_KEY, AuthController.prototype[methodName]);
+    return Reflect.getMetadata(
+      IS_PUBLIC_KEY,
+      AuthController.prototype[methodName],
+    );
   }
 });

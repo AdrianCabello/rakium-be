@@ -7,10 +7,12 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { getRequiredEnv } from '../config/required-env';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -27,4 +29,4 @@ import { getRequiredEnv } from '../config/required-env';
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
-export class AuthModule {} 
+export class AuthModule {}

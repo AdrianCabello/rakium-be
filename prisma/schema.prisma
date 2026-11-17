@@ -8,23 +8,43 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String
-  role         UserRole
-  clientId     String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  client       Client?   @relation(fields: [clientId], references: [id])
-  projects     Project[] @relation("CreatedBy")
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  passwordHash        String
+  role                UserRole
+  clientId            String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  client              Client?              @relation(fields: [clientId], references: [id])
+  projects            Project[]            @relation("CreatedBy")
+  passwordResetTokens PasswordResetToken[]
+  professional        Professional?
 
   @@map("User")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
 model Client {
   id                  String               @id @default(uuid())
   name                String
   email               String               @unique
+  /// Identificador público del sitio (ej. "celinagstudio"), usado por /public/sites/:slug
+  slug                String?              @unique
+  /// URL del sitio del cliente (ej. https://celinagstudio.com). Se usa para el link de "olvidé mi contraseña"
+  siteUrl             String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   users               User[]
@@ -36,6 +56,11 @@ model Client {
   financeCategories   FinanceCategory[]
   financeTransactions FinanceTransaction[]
   contentMetrics      ContentMetric[]
+  professionals       Professional[]
+  serviceCategories   ServiceCategory[]
+  services            Service[]
+  promos              Promo[]
+  siteSettings        SiteSettings?
 
   @@map("Client")
 }
@@ -227,6 +252,8 @@ model Project {
   githubUrl       String?          @map("github_url")
   demoUrl         String?          @map("demo_url")
   technologies    Json?            @map("technologies")
+  serviceId       String?          @map("service_id")
+  professionalId  String?          @map("professional_id")
   gallery         Gallery[]
   videos          Video[]
   afterImage      Gallery?         @relation("AfterImage", fields: [afterImageId], references: [id])
@@ -235,6 +262,8 @@ model Project {
   client          Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
   categoryRef     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   creator         User?            @relation("CreatedBy", fields: [createdBy], references: [id])
+  service         Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  professional    Professional?    @relation(fields: [professionalId], references: [id], onDelete: SetNull)
 
   @@unique([clientId, order], name: "unique_order_per_client")
   @@map("projects")
@@ -416,6 +445,123 @@ model SellerActivity {
   @@index([leadId])
   @@index([type])
   @@map("seller_activities")
+}
+
+// ---------------------------------------------------------------------------
+// Sitios de estética (Celina G Studio): profesionales, servicios, promos y ajustes.
+// Los trabajos antes/después se guardan como Project (+ Gallery/Video) con serviceId.
+// Turnos y seña (Appointment) quedan diseñados en docs/CELINAGSTUDIO.md, sin implementar.
+// ---------------------------------------------------------------------------
+
+model Professional {
+  id        String    @id @default(uuid())
+  clientId  String    @map("client_id")
+  fullName  String    @map("full_name")
+  /// Profesión o área: "Estilista", "Manicura"...
+  role      String
+  license   String?
+  bio       String?
+  photoUrl  String?   @map("photo_url")
+  whatsapp  String?
+  instagram String?
+  /// Usuario opcional para que la profesional entre al panel
+  userId    String?   @unique @map("user_id")
+  visible   Boolean   @default(true)
+  order     Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  services  Service[]
+  projects  Project[]
+
+  @@index([clientId, order])
+  @@map("professionals")
+}
+
+model ServiceCategory {
+  id        String    @id @default(uuid())
+  clientId  String    @map("client_id")
+  name      String
+  slug      String
+  order     Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  services  Service[]
+
+  @@unique([clientId, slug])
+  @@map("service_categories")
+}
+
+model Service {
+  id                 String           @id @default(uuid())
+  clientId           String           @map("client_id")
+  categoryId         String?          @map("category_id")
+  professionalId     String?          @map("professional_id")
+  name               String
+  slug               String
+  shortDescription   String?          @map("short_description")
+  description        String?
+  benefits           String[]         @default([])
+  durationMinutes    Int?             @map("duration_minutes")
+  /// Pesos argentinos, sin centavos. null = "consultar"
+  price              Int?
+  priceFrom          Boolean          @default(false) @map("price_from")
+  formaldehydeFree   Boolean?         @map("formaldehyde_free")
+  touchUpDays        Int?             @map("touch_up_days")
+  resultDurationDays Int?             @map("result_duration_days")
+  imageUrl           String?          @map("image_url")
+  visible            Boolean          @default(true)
+  featured           Boolean          @default(false)
+  order              Int              @default(0)
+  /// Preparado para turnos online (opción 3); sin lógica todavía
+  bookable           Boolean          @default(false)
+  depositAmount      Int?             @map("deposit_amount")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  client             Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  category           ServiceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  professional       Professional?    @relation(fields: [professionalId], references: [id], onDelete: SetNull)
+  projects           Project[]
+
+  @@unique([clientId, slug])
+  @@index([clientId, order])
+  @@map("services")
+}
+
+model Promo {
+  id          String    @id @default(uuid())
+  clientId    String    @map("client_id")
+  title       String
+  description String?
+  imageUrl    String?   @map("image_url")
+  validUntil  DateTime? @map("valid_until")
+  visible     Boolean   @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, order])
+  @@map("promos")
+}
+
+/// Datos generales del sitio de un cliente. Tabla distinta de la vieja "site_settings" (sin modelo).
+model SiteSettings {
+  id        String   @id @default(uuid())
+  clientId  String   @unique @map("client_id")
+  whatsapp  String?
+  instagram String?
+  address   String?
+  mapsUrl   String?  @map("maps_url")
+  /// [{ weekday: 0-6, open: "09:00", close: "19:00" }]
+  schedule  Json     @default("[]")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("client_site_settings")
 }
 
 enum UserRole {

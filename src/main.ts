@@ -2,13 +2,20 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { PrismaExceptionFilter } from './filters/prisma-exception.filter';
+import { LOCAL_UPLOADS_DIR, LOCAL_UPLOADS_ROUTE } from './upload/storage/local-storage.provider';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { rawBody: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
 
   // Prefijo global para todas las rutas API (coincide con el health check de Dokploy)
   app.setGlobalPrefix('api');
+
+  // Solo desarrollo: sirve las fotos guardadas en disco con STORAGE_PROVIDER=local.
+  if (process.env.STORAGE_PROVIDER?.trim().toLowerCase() === 'local') {
+    app.useStaticAssets(LOCAL_UPLOADS_DIR, { prefix: LOCAL_UPLOADS_ROUTE });
+  }
 
   // Configuración de Swagger
   const config = new DocumentBuilder()
@@ -34,6 +41,8 @@ async function bootstrap() {
     'https://adriancabello.dev',
     'https://www.adriancabello.dev',
     'https://adriancabello.github.io',
+    'https://celinagstudio.com',
+    'https://www.celinagstudio.com',
   ];
   const extraOrigins = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) ?? [];
   const origins = [...new Set([...allowedOrigins, ...extraOrigins])];
