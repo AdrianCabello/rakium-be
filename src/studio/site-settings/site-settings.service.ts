@@ -8,22 +8,38 @@ export const SITE_SETTINGS_SELECT = {
   instagram: true,
   address: true,
   mapsUrl: true,
+  heroBefore: true,
+  heroAfter: true,
   schedule: true,
 } satisfies Prisma.SiteSettingsSelect;
 
-export const EMPTY_SITE_SETTINGS = { whatsapp: null, instagram: null, address: null, mapsUrl: null, schedule: [] };
+export const EMPTY_SITE_SETTINGS = {
+  whatsapp: null,
+  instagram: null,
+  address: null,
+  mapsUrl: null,
+  heroBefore: null,
+  heroAfter: null,
+  schedule: [],
+};
 
 @Injectable()
 export class SiteSettingsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async get(clientId: string) {
-    const settings = await this.prisma.siteSettings.findUnique({ where: { clientId }, select: SITE_SETTINGS_SELECT });
+    const settings = await this.prisma.siteSettings.findUnique({
+      where: { clientId },
+      select: SITE_SETTINGS_SELECT,
+    });
     return settings ?? EMPTY_SITE_SETTINGS;
   }
 
   update(clientId: string, dto: UpdateSiteSettingsDto) {
-    const data = { ...dto, schedule: dto.schedule as unknown as Prisma.InputJsonValue };
+    const data = {
+      ...dto,
+      schedule: dto.schedule as unknown as Prisma.InputJsonValue,
+    };
     return this.prisma.siteSettings.upsert({
       where: { clientId },
       create: { ...data, clientId },

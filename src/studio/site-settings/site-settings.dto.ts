@@ -49,6 +49,20 @@ export class UpdateSiteSettingsDto {
   @IsUrl()
   mapsUrl?: string | null;
 
+  @ApiPropertyOptional({ description: 'Foto del antes de la portada (URL de /upload/image)' })
+  @IsOptional()
+  @Transform(emptyToNull)
+  @IsUrl({ require_tld: false })
+  @MaxLength(500)
+  heroBefore?: string | null;
+
+  @ApiPropertyOptional({ description: 'Foto del después de la portada (URL de /upload/image)' })
+  @IsOptional()
+  @Transform(emptyToNull)
+  @IsUrl({ require_tld: false })
+  @MaxLength(500)
+  heroAfter?: string | null;
+
   @ApiPropertyOptional({ type: [OpeningHoursDto] })
   @IsOptional()
   @IsArray()

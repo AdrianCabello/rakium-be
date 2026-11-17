@@ -3,7 +3,11 @@ import { PublicSitesService } from './public-sites.service';
 
 describe('PublicSitesService', () => {
   const prisma = { client: { findUnique: jest.fn() } };
-  const stamps = { clientId: 'client-1', createdAt: new Date(), updatedAt: new Date() };
+  const stamps = {
+    clientId: 'client-1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 
   let service: PublicSitesService;
 
@@ -15,7 +19,9 @@ describe('PublicSitesService', () => {
   it('returns 404 for an unknown slug', async () => {
     prisma.client.findUnique.mockResolvedValue(null);
 
-    await expect(service.getBySlug('no-existe')).rejects.toThrow(NotFoundException);
+    await expect(service.getBySlug('no-existe')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('only queries visible content and current promos', async () => {
@@ -43,9 +49,13 @@ describe('PublicSitesService', () => {
     prisma.client.findUnique.mockResolvedValue({
       id: 'client-1',
       siteSettings: null,
-      serviceCategories: [{ id: 'cat-1', name: 'Alisados', slug: 'alisados', order: 0 }],
+      serviceCategories: [
+        { id: 'cat-1', name: 'Alisados', slug: 'alisados', order: 0 },
+      ],
       services: [{ id: 'svc-1', name: 'Nanoplastia', ...stamps }],
-      professionals: [{ id: 'pro-1', fullName: 'Celina Gómez', userId: 'user-1', ...stamps }],
+      professionals: [
+        { id: 'pro-1', fullName: 'Celina Gómez', userId: 'user-1', ...stamps },
+      ],
       promos: [],
     });
 
@@ -53,8 +63,18 @@ describe('PublicSitesService', () => {
 
     expect(site).toEqual({
       clientId: 'client-1',
-      settings: { whatsapp: null, instagram: null, address: null, mapsUrl: null, schedule: [] },
-      categories: [{ id: 'cat-1', name: 'Alisados', slug: 'alisados', order: 0 }],
+      settings: {
+        whatsapp: null,
+        instagram: null,
+        address: null,
+        mapsUrl: null,
+        heroBefore: null,
+        heroAfter: null,
+        schedule: [],
+      },
+      categories: [
+        { id: 'cat-1', name: 'Alisados', slug: 'alisados', order: 0 },
+      ],
       services: [{ id: 'svc-1', name: 'Nanoplastia' }],
       professionals: [{ id: 'pro-1', fullName: 'Celina Gómez' }],
       promos: [],

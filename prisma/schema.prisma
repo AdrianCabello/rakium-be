@@ -549,17 +549,20 @@ model Promo {
 
 /// Datos generales del sitio de un cliente. Tabla distinta de la vieja "site_settings" (sin modelo).
 model SiteSettings {
-  id        String   @id @default(uuid())
-  clientId  String   @unique @map("client_id")
-  whatsapp  String?
-  instagram String?
-  address   String?
-  mapsUrl   String?  @map("maps_url")
+  id         String   @id @default(uuid())
+  clientId   String   @unique @map("client_id")
+  whatsapp   String?
+  instagram  String?
+  address    String?
+  mapsUrl    String?  @map("maps_url")
+  /// Antes y después de la portada (hero). Si están vacíos la web usa los de ejemplo.
+  heroBefore String?  @map("hero_before")
+  heroAfter  String?  @map("hero_after")
   /// [{ weekday: 0-6, open: "09:00", close: "19:00" }]
-  schedule  Json     @default("[]")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  schedule   Json     @default("[]")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@map("client_site_settings")
 }
